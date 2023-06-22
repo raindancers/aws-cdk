@@ -25,6 +25,8 @@ import {
   Listener,
   RuleAccessMode,
   ServiceNetworkAccessMode,
+  HealthCheck,
+  ProtocolVersion,
 }
   from '../lib';
 
@@ -43,6 +45,8 @@ describe('VPC Lattice', () => {
   describe('created with default properties', () => {
 
     beforeEach(() => {
+
+      const vpc1 = new ec2.Vpc(stack, 'VPC1', {});
 
       const latticeService = new Service(stack, 'Service', {
         shares: [{
@@ -113,9 +117,14 @@ describe('VPC Lattice', () => {
               target: Target.ipAddress(
                 ['10.10.10.10'],
                 {
-                  port: 443,
-                  protocol: Protocol.HTTPS,
-                  vpcIdentifier: 'Vpc1',
+                  vpc: vpc1,
+                  healthcheck: HealthCheck.check({
+                    healthCheckInterval: core.Duration.seconds(60),
+                    healthCheckTimeout: core.Duration.seconds(10),
+                    healthyThresholdCount: 2,
+                    protocolVersion: ProtocolVersion.HTTP1,
+                    unhealthyThresholdCount: 2,
+                  }),
                 },
               ),
             }),
@@ -153,7 +162,19 @@ describe('VPC Lattice', () => {
                     vpc: new ec2.Vpc(stack, 'ec2instanceTarget'),
                   }),
                 ],
-                { port: 443, protocol: Protocol.HTTPS, vpcIdentifier: 'Vpc1' },
+                {
+                  vpc: vpc1,
+                  protocol: Protocol.HTTP,
+                  healthcheck: HealthCheck.check({
+                    protocol: Protocol.HTTP,
+                    healthCheckInterval: core.Duration.seconds(60),
+                    healthCheckTimeout: core.Duration.seconds(10),
+                    healthyThresholdCount: 2,
+                    protocolVersion: ProtocolVersion.HTTP1,
+                    unhealthyThresholdCount: 2,
+                    matcher: FixedResponse.OK,
+                  }),
+                },
               ),
             }),
           },
@@ -177,7 +198,7 @@ describe('VPC Lattice', () => {
                 {
                   port: 443,
                   protocol: Protocol.HTTPS,
-                  vpcIdentifier: 'Vpc1',
+                  vpc: vpc1,
                 },
               ),
             }),
@@ -204,9 +225,9 @@ describe('VPC Lattice', () => {
                   }),
                 ],
                 {
-                  port: 443,
-                  protocol: Protocol.HTTPS,
-                  vpcIdentifier: 'Vpc1',
+                  port: 8080,
+                  protocol: Protocol.HTTP,
+                  vpc: vpc1,
                 },
               ),
             }),
@@ -241,14 +262,17 @@ describe('VPC Lattice', () => {
         accessmode: ServiceNetworkAccessMode.AUTHENTICATED_ONLY,
         services: [latticeService],
         vpcs: [
-          new ec2.Vpc(stack, 'Vpc1'),
-          new ec2.Vpc(stack, 'Vpc2'),
+          vpc1,
         ],
         loggingDestinations: [
           LoggingDestination.s3(new s3.Bucket(stack, 'S3Bucket')),
           LoggingDestination.kinesis(new kinesis.Stream(stack, 'KinesisStream')),
           LoggingDestination.cloudwatch(new log.LogGroup(stack, 'CloudWatchLogGroup')),
         ],
+      });
+
+      servicenetwork.share({
+        name: 'abcdef',
       });
 
       new ServiceNetwork(stack, 'ServiceNetwork2', {

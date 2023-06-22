@@ -450,28 +450,28 @@ export class ServiceAssociation extends core.Resource {
 /**
  * Props for LoggingSubscription
  */
-export interface LoggingSubscriptionProps {
-  /**
-   * destination for the logs
-   */
-  readonly destination: LoggingDestination;
-  /**
-   * serviceNetwork Id
-   */
-  readonly serviceNetworkId: string;
-}
+// export interface LoggingSubscriptionProps {
+//   /**
+//    * destination for the logs
+//    */
+//   readonly destination: LoggingDestination;
+//   /**
+//    * serviceNetwork Id
+//    */
+//   readonly serviceNetworkId: string;
+// }
 
 /**
  * A Lattice Service Network Logging subscription
  */
-export class LoggingSubscription extends core.Resource {
+// export class LoggingSubscription extends core.Resource {
 
-  constructor(scope: constructs.Construct, id: string, props: LoggingSubscriptionProps) {
-    super(scope, id);
+//   constructor(scope: constructs.Construct, id: string, props: LoggingSubscriptionProps) {
+//     super(scope, id);
 
-    new aws_vpclattice.CfnAccessLogSubscription(this, `AccessLogSubscription${this.node.addr}`, {
-      destinationArn: props.destination.arn,
-      resourceIdentifier: props.serviceNetworkId,
-    });
-  };
-}
+//     new aws_vpclattice.CfnAccessLogSubscription(this, `AccessLogSubscription${this.node.addr}`, {
+//       destinationArn: props.destination.arn,
+//       resourceIdentifier: props.serviceNetworkId,
+//     });
+//   };
+// }

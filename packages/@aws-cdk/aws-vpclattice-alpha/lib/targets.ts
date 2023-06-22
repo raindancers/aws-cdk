@@ -1,4 +1,4 @@
-// import * as core from 'aws-cdk-lib';
+import * as core from 'aws-cdk-lib';
 
 import {
   aws_vpclattice,
@@ -8,9 +8,43 @@ import {
 }
   from 'aws-cdk-lib';
 
-//import * as constructs from 'constructs';
-import * as vpclattice from './index';
-//import { Construct } from 'constructs';
+import {
+  Protocol,
+  TargetGroup,
+  FixedResponse,
+} from './index';
+
+/**
+ * IpAddressType
+ */
+export enum IpAddressType {
+  /**
+   * ipv4
+   */
+  IPV4 = 'IPV4',
+  /**
+   * Ipv6
+   */
+  IPV6 = 'IPV6',
+}
+
+/**
+ * ProtocolVersion
+ */
+export enum ProtocolVersion {
+  /**
+   * Http1
+   */
+  HTTP1 = 'HTTP1',
+  /**
+   * Http2
+   */
+  HTTP2 = 'HTTP2',
+  /**
+   * GRPC
+   */
+  GRPC = 'GRPC',
+}
 
 /**
  * Types of Targets that are usable with vpclattice
@@ -35,12 +69,47 @@ export enum TargetType {
 }
 
 /**
+ * TargetConfiguration
+ */
+export interface TargetConfig {
+  /**
+   * VPC where the target(s) are located
+   */
+  readonly vpc: ec2.IVpc,
+  /**
+   * HealthCheckParameters - Can supply for IpAddress and ALB targets only.
+   * @default No HealthCheck
+   */
+  readonly healthcheck?: HealthCheck | undefined,
+  /**
+   * IpAddressType
+   * @default IPv4
+   */
+  readonly ipAddressType?: IpAddressType,
+  /**
+   * Protocol
+   * @default HTTPS
+   */
+  readonly protocol?: Protocol | undefined,
+  /**
+   * Port
+   * @default Defaults to port 80 for HTTP, or 443 for HTTPS and GRPC
+   */
+  readonly port?: number | undefined,
+  /**
+   * ProtocolVersion
+   * @default HTTP1
+   */
+  readonly protocolVersion?: ProtocolVersion,
+}
+
+/**
  * Targets for target Groups
  */
 export abstract class Target {
 
   /**
-   * Lambda Target
+   * Lambda Target - Note: Lambda Targets do not have a configuration
    * @param lambda
    */
   public static lambda(lambda: aws_lambda.Function[]): Target {
@@ -59,15 +128,32 @@ export abstract class Target {
   /**
    * IpAddress as Targets
    * @param ipAddress
-   * @param config
+   * @param targetConfig
    */
-  public static ipAddress(ipAddress: string[], config: aws_vpclattice.CfnTargetGroup.TargetGroupConfigProperty ): Target {
+  public static ipAddress(ipAddress: string[], targetConfig: TargetConfig ): Target {
 
     let targets: aws_vpclattice.CfnTargetGroup.TargetProperty[] = [];
 
     ipAddress.forEach((target) => {
       targets.push({ id: target });
     });
+
+    var port: number;
+    if (targetConfig.port) {
+      port = targetConfig.port;
+    } else if ( targetConfig.protocol === Protocol.HTTP ) {
+      port = 80;
+    } else {
+      port = 443;
+    };
+
+    var config: aws_vpclattice.CfnTargetGroup.TargetGroupConfigProperty = {
+      vpcIdentifier: targetConfig.vpc.vpcId,
+      protocol: targetConfig.protocol ?? Protocol.HTTPS,
+      port: port,
+      ipAddressType: targetConfig.ipAddressType ?? IpAddressType.IPV4,
+      healthCheck: targetConfig.healthcheck,
+    };
 
     return {
       type: TargetType.IP,
@@ -80,15 +166,32 @@ export abstract class Target {
   /**
    * EC2 Instances as Targets
    * @param ec2instance
-   * @param config
+   * @param targetConfig
    */
-  public static ec2instance(ec2instance: ec2.Instance[], config: aws_vpclattice.CfnTargetGroup.TargetGroupConfigProperty): Target {
+  public static ec2instance(ec2instance: ec2.Instance[], targetConfig: TargetConfig): Target {
 
     let targets: aws_vpclattice.CfnTargetGroup.TargetProperty[] = [];
 
     ec2instance.forEach((target) => {
       targets.push({ id: target.instanceId });
     });
+
+    var port: number;
+    if (targetConfig.port) {
+      port = targetConfig.port;
+    } else if ( targetConfig.protocol === Protocol.HTTP ) {
+      port = 80;
+    } else {
+      port = 443;
+    };
+
+    var config: aws_vpclattice.CfnTargetGroup.TargetGroupConfigProperty = {
+      vpcIdentifier: targetConfig.vpc.vpcId,
+      protocol: targetConfig.protocol ?? Protocol.HTTPS,
+      port: port,
+      ipAddressType: targetConfig.ipAddressType ?? IpAddressType.IPV4,
+      healthCheck: targetConfig.healthcheck,
+    };
 
     return {
       type: TargetType.INSTANCE,
@@ -101,18 +204,39 @@ export abstract class Target {
   /**
    * Application Load Balancer as Targets
    * @param alb
-   * @param config
+   * @param targetConfig
    */
   public static applicationLoadBalancer(
     alb: elbv2.ApplicationLoadBalancer[],
-    config: aws_vpclattice.CfnTargetGroup.TargetGroupConfigProperty,
+    targetConfig: TargetConfig,
   ) : Target {
+
+    if (targetConfig?.healthcheck) {
+      throw new Error('HealthCheck is not supported for Application Load Balancers');
+    };
 
     let targets: aws_vpclattice.CfnTargetGroup.TargetProperty[] = [];
 
     alb.forEach((target) => {
       targets.push({ id: target.loadBalancerArn });
     });
+
+    var port: number;
+    if (targetConfig.port) {
+      port = targetConfig.port;
+    } else if ( targetConfig.protocol === Protocol.HTTP ) {
+      port = 80;
+    } else {
+      port = 443;
+    };
+
+    var config: aws_vpclattice.CfnTargetGroup.TargetGroupConfigProperty = {
+      vpcIdentifier: targetConfig.vpc.vpcId,
+      protocol: targetConfig.protocol ?? Protocol.HTTPS,
+      port: port,
+      ipAddressType: targetConfig.ipAddressType ?? IpAddressType.IPV4,
+      healthCheck: targetConfig.healthcheck,
+    };
 
     return {
       type: TargetType.ALB,
@@ -135,8 +259,8 @@ export abstract class Target {
   public abstract readonly config?: aws_vpclattice.CfnTargetGroup.TargetGroupConfigProperty | undefined;
 
   constructor() {};
-
 }
+
 /**
  * A weighted target group adds a weighting to a target group.
  * when more than one WeightedTargetGroup is provided as the action
@@ -147,177 +271,183 @@ export interface WeightedTargetGroup {
   /**
    * A target Group
    */
-  readonly targetGroup: vpclattice.TargetGroup,
+  readonly targetGroup: TargetGroup,
   /**
   * A weight for the target group.
   * @default 100
   */
   readonly weight?: number | undefined
 }
+
 /**
  * A Configuration of the TargetGroup Health Check.
  */
-// export interface TargetGroupHealthCheck {
-//   /**
-//    * Enable this Health Check
-//    * @default true
-//    */
-//   readonly enabled?: boolean | undefined,
-//   /**
-//    * Health Check Interval
-//    * @default 30 seconds
-//    */
-//   readonly healthCheckInterval?: core.Duration | undefined
-//   /**
-//    * TimeOut Period
-//    * @default 5 seconds
-//    */
-//   readonly healthCheckTimeout?: core.Duration | undefined
-//   /**
-//    * Number of Healthy Responses before Target is considered healthy
-//    * @default 2
-//    */
-//   readonly healthyThresholdCount?: number | undefined
-//   /**
-//    * Check based on Response from target
-//    * @default 200 OK
-//    */
-//   readonly matcher?: vpclattice.FixedResponse | undefined
-//   /**
-//    * Path to use for Health Check
-//    * @default '/'
-//    */
-//   readonly path?: string | undefined
-//   /**
-//    * Port to use for Health Check
-//    * @default 443
-//    */
-//   readonly port?: number | undefined
-//   /**
-//    * Protocol to use for Health Check
-//    * @default HTTPS
-//    */
-//   readonly protocol?: vpclattice.Protocol | undefined
-//   /**
-//    * Protocol to use for Health Check
-//    * @default HTTP2
-//    */
-//   readonly protocolVersion?: vpclattice.ProtocolVersion | undefined
-//   /**
-//    * Number of unhealty events before Target is considered unhealthy
-//    * @default 1
-//    */
-//   readonly unhealthyThresholdCount?: number | undefined
-// }
-// /**
-//  * Target Group Configuration Properties
-//  */
-// export interface TargetGroupConfigProps {
-//   /**
-//    * The port to listen on
-//    */
-//   readonly port: number;
-//   /**
-//    * The protocol to listen on
-//    */
-//   readonly protocol: vpclattice.Protocol;
-//   /**
-//    * The VPC to use
-//    */
-//   readonly vpc: ec2.Vpc;
-//   /**
-//    * The IP Address Type
-//    * @default ipv4
-//    */
-//   readonly ipAddressType?: vpclattice.IpAddressType | undefined;
-//   /**
-//    * The Protocol Versions
-//    * @default HTTP2
-//    */
-//   readonly protocolVersion?: vpclattice.ProtocolVersion | undefined;
-//   /**
-//    * The Health Check to use
-//    * @default none
-//    */
-//   readonly healthCheck?: TargetGroupHealthCheck | undefined;
-// }
+export interface TargetGroupHealthCheckProps {
+  /**
+   * Enable this Health Check
+   * @default true
+   */
+  readonly enabled?: boolean | undefined,
+  /**
+   * Health Check Interval
+   * @default 30 seconds
+   */
+  readonly healthCheckInterval?: core.Duration | undefined
+  /**
+   * TimeOut Period
+   * @default 5 seconds
+   */
+  readonly healthCheckTimeout?: core.Duration | undefined
+  /**
+   * Number of Healthy Responses before Target is considered healthy
+   * @default 2
+   */
+  readonly healthyThresholdCount?: number | undefined
+  /**
+   * Check based on Response from target
+   * @default 200 OK
+   */
+  readonly matcher?: FixedResponse | undefined
+  /**
+   * Path to use for Health Check
+   * @default '/'
+   */
+  readonly path?: string | undefined
+  /**
+   * Port to use for Health Check
+   * @default 443
+   */
+  readonly port?: number | undefined
+  /**
+   * Protocol to use for Health Check
+   * @default HTTPS
+   */
+  readonly protocol?: Protocol | undefined
+  /**
+   * Protocol to use for Health Check
+   * @default HTTP2
+   */
+  readonly protocolVersion?: ProtocolVersion | undefined
+  /**
+   * Number of unhealty events before Target is considered unhealthy
+   * @default 1
+   */
+  readonly unhealthyThresholdCount?: number | undefined
+}
+
 /**
- * A TargetGroup Configuration
+ * Create a Health Check for a target
  */
-// export class TargetGroupConfig extends Construct {
+export abstract class HealthCheck {
 
-//   /**
-//    * The configuration
-//    */
-//   targetGroupCfg: aws_vpclattice.CfnTargetGroup.TargetGroupConfigProperty;
+  /**
+   * A Health Check configuration object for a target
+   * @param props
+   * @returns HealthCheck
+   */
+  public static check(props: TargetGroupHealthCheckProps): HealthCheck {
 
-//   constructor(scope: constructs.Construct, id: string, props: TargetGroupConfigProps) {
-//     super(scope, id);
+    // validate the ranges for the health check
+    if (props.healthCheckInterval) {
+      if (props.healthCheckInterval.toSeconds() < 5 || props.healthCheckInterval.toSeconds() > 300) {
+        throw new Error('HealthCheckInterval must be between 5 and 300 seconds');
+      }
+    };
 
-//     // validate the ranges for the health check
-//     if (props.healthCheck?.healthCheckInterval) {
-//       if (props.healthCheck?.healthCheckInterval.toSeconds() < 5 || props.healthCheck?.healthCheckInterval.toSeconds() > 300) {
-//         throw new Error('HealthCheckInterval must be between 5 and 300 seconds');
-//       }
-//     };
+    if (props.healthCheckTimeout) {
+      if (props.healthCheckTimeout.toSeconds() < 1 || props.healthCheckTimeout.toSeconds() > 120) {
+        throw new Error('HealthCheckTimeout must be between 1 and 120seconds');
+      }
+    };
 
-//     if (props.healthCheck?.healthCheckTimeout) {
-//       if (props.healthCheck?.healthCheckTimeout.toSeconds() < 1 || props.healthCheck?.healthCheckTimeout.toSeconds() > 120) {
-//         throw new Error('HealthCheckTimeout must be between 1 and 120seconds');
-//       }
-//     };
+    if (props.healthyThresholdCount) {
+      if (props.healthyThresholdCount < 1 || props.healthyThresholdCount > 10) {
+        throw new Error('HealthyThresholdCount must be between 1 and 10');
+      }
+    };
 
-//     if (props.healthCheck?.healthyThresholdCount) {
-//       if (props.healthCheck?.healthyThresholdCount < 1 || props.healthCheck?.healthyThresholdCount > 10) {
-//         throw new Error('HealthyThresholdCount must be between 1 and 10');
-//       }
-//     };
-//     // the enum returns a number, but we need a string, so convert
-//     let matcher: aws_vpclattice.CfnTargetGroup.MatcherProperty | undefined = undefined;
-//     if (props.healthCheck?.matcher) {
-//       const codeAsString = props.healthCheck.matcher.toString();
-//       matcher = { httpCode: codeAsString };
-//     };
+    if (props.protocolVersion) {
+      if (props.protocolVersion === ProtocolVersion.GRPC) {
+        throw new Error('GRPC is not supported');
+      }
+    };
 
-//     // default for https is 443, otherwise 80
-//     var port: number = 80;
-//     if (!(props.healthCheck?.port) && props.healthCheck?.protocol) {
-//       if (props.healthCheck?.protocol === vpclattice.Protocol.HTTPS) {
-//         port = 443;
-//       }
-//     };
+    if (props.unhealthyThresholdCount) {
+      if (props.unhealthyThresholdCount < 2 || props.unhealthyThresholdCount > 10) {
+        throw new Error('UnhealthyThresholdCount must be between 2 and 10');
+      }
+    }
 
-//     if (props.protocolVersion) {
-//       if (props.protocolVersion === vpclattice.ProtocolVersion.GRPC) {
-//         throw new Error('GRPC is not supported');
-//       }
-//     };
+    var port: number;
+    if (props.port) {
+      port = props.port;
+    } else if ( props.protocol === Protocol.HTTP ) {
+      port = 80;
+    } else {
+      port = 443;
+    };
 
-//     if (props.healthCheck?.unhealthyThresholdCount) {
-//       if (props.healthCheck?.unhealthyThresholdCount < 2 || props.healthCheck?.unhealthyThresholdCount > 10) {
-//         throw new Error('UnhealthyThresholdCount must be between 2 and 10');
-//       }
-//     }
+    let matcher: aws_vpclattice.CfnTargetGroup.MatcherProperty | undefined = undefined;
+    if (props.matcher) {
+      const codeAsString = props.matcher.toString();
+      matcher = { httpCode: codeAsString };
+    };
 
-//     let targetHealthCheck: aws_vpclattice.CfnTargetGroup.HealthCheckConfigProperty = {
-//       enabled: props.healthCheck?.enabled ?? true,
-//       healthCheckIntervalSeconds: props.healthCheck?.healthCheckInterval?.toSeconds() ?? 30,
-//       healthCheckTimeoutSeconds: props.healthCheck?.healthCheckTimeout?.toSeconds() ?? 5,
-//       matcher: matcher,
-//       path: props.healthCheck?.path ?? '/',
-//       port: props.port ?? port,
-//       protocol: props.healthCheck?.protocol ?? 'HTTP',
-//       protocolVersion: props.healthCheck?.protocolVersion ?? 'HTTP1',
-//       unhealthyThresholdCount: props.healthCheck?.unhealthyThresholdCount ?? 2,
-//     };
+    return {
+      enabled: props.enabled ?? true,
+      healthCheckInterval: props.healthCheckInterval ?? core.Duration.seconds(30),
+      healthCheckTimeout: props.healthCheckTimeout ?? core.Duration.seconds(5),
+      path: props.path ?? '/',
+      protocol: props.protocol ?? 'HTTPS',
+      port: port,
+      protocolVersion: props.protocolVersion ?? 'HTTP1',
+      unhealthyThresholdCount: props.unhealthyThresholdCount ?? 2,
+      healthyThresholdCount: props.healthyThresholdCount ?? 5,
+      matcher: matcher,
+    };
+  };
 
-//     this.targetGroupCfg = {
-//       port: props.port,
-//       protocol: props.protocol,
-//       vpcIdentifier: props.vpc.vpcId,
-//       ipAddressType: props.ipAddressType ?? vpclattice.IpAddressType.IPV4,
-//       protocolVersion: props.protocolVersion ?? vpclattice.ProtocolVersion.HTTP1,
-//       healthCheck: targetHealthCheck,
-//     };
-//   }
-// }
+  /**
+   * health check is enabled.
+   */
+  public abstract readonly enabled: boolean;
+  /**
+   * healthCheck Interval
+   */
+  public abstract readonly healthCheckInterval: core.Duration;
+  /**
+   * HealthCheck Timeout
+   */
+  public abstract readonly healthCheckTimeout: core.Duration;
+  /**
+   * Target Match reponse
+   */
+  public abstract readonly matcher: aws_vpclattice.CfnTargetGroup.MatcherProperty | undefined;
+  /**
+   * Path to check
+   */
+  public abstract readonly path: string;
+  /**
+   * Port to check
+   */
+  public abstract readonly port: number;
+  /** Protocol
+   *
+   */
+  public abstract readonly protocol: string;
+  /**
+   * HTTP Protocol Version
+   */
+  public abstract readonly protocolVersion: string;
+  /**
+   * Unhealthy Threshold Count
+   */
+  public abstract readonly unhealthyThresholdCount: number;
+  /**
+   * Healthy Threshold Count
+   */
+  public abstract readonly healthyThresholdCount: number;
+
+  protected constructor() {};
+
+};
