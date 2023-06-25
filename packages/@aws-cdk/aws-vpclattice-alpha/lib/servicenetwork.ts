@@ -114,25 +114,6 @@ export interface IServiceNetwork extends core.IResource {
    * Associate a VPC with the Service Network
    */
   associateVPC(props: AssociateVPCProps): void;
-  /**
-   * Add a logging Destination.
-   */
-  addloggingDestination(props: AddloggingDestinationProps): void;
-  /**
-   * Share the ServiceNetwork, Consider if it is more appropriate to do this at the service.
-   */
-  share(props: ShareServiceNetworkProps): void;
-
-  /**
-   * Add a statement to the auth policy. This should be high level coarse policy, consider only adding
-   * statements here that have DENY effects
-   * @param statement the policy statement to add.
-   */
-  addStatementToAuthPolicy(statement: iam.PolicyStatement): void;
-  /**
-  * Apply auth policy to the Service Network
-  */
-  applyAuthPolicyToServiceNetwork(): void;
 }
 
 /**
@@ -176,10 +157,46 @@ export interface ServiceNetworkProps {
   readonly accessmode?: ServiceNetworkAccessMode | undefined;
 }
 
+abstract class ServiceNetworkBase extends core.Resource implements IServiceNetwork {
+
+  /**
+   * THe Arn of the Service Network
+   */
+  public abstract readonly serviceNetworkArn: string;
+  /**
+   * The Id of the Service Network
+   */
+  public abstract readonly serviceNetworkId: string;
+
+  /**
+   * Add A lattice service to a lattice network
+   */
+  public addService(props: AddServiceProps): void {
+
+    new ServiceAssociation(this, `ServiceAssociation${props.service.node.addr}`, {
+      service: props.service,
+      serviceNetworkId: this.serviceNetworkId,
+    });
+  }
+
+  /**
+   * Associate a VPC with the Service Network
+   * This provides an opinionated default of adding a security group to allow inbound 443
+   */
+  public associateVPC(props: AssociateVPCProps): void {
+
+    new AssociateVpc(this, `AssociateVPC${props.vpc.node.addr}`, {
+      vpc: props.vpc,
+      securityGroups: props.securityGroups,
+      serviceNetworkId: this.serviceNetworkId,
+    });
+  };
+}
+
 /**
  * Create a vpcLattice Service Network.
  */
-export class ServiceNetwork extends core.Resource implements IServiceNetwork {
+export class ServiceNetwork extends ServiceNetworkBase {
   /**
    * The Arn of the service network
    */
@@ -299,7 +316,9 @@ export class ServiceNetwork extends core.Resource implements IServiceNetwork {
     this.authPolicy.addStatements(statement);
   }
 
-  // addToResourcePolicy(permission)
+  /**
+   * Apply the AuthPolicy to a Service Network
+   */
   public applyAuthPolicyToServiceNetwork(): void {
 
     // check to see if there are any errors with the auth policy
@@ -318,29 +337,6 @@ export class ServiceNetwork extends core.Resource implements IServiceNetwork {
     });
 
   }
-  /**
-   * Add A lattice service to a lattice network
-   */
-  public addService(props: AddServiceProps): void {
-
-    new ServiceAssociation(this, `ServiceAssociation${props.service.node.addr}`, {
-      service: props.service,
-      serviceNetworkId: this.serviceNetworkId,
-    });
-  }
-
-  /**
-   * Associate a VPC with the Service Network
-   * This provides an opinionated default of adding a security group to allow inbound 443
-   */
-  public associateVPC(props: AssociateVPCProps): void {
-
-    new AssociateVpc(this, `AssociateVPC${props.vpc.node.addr}`, {
-      vpc: props.vpc,
-      securityGroups: props.securityGroups,
-      serviceNetworkId: this.serviceNetworkId,
-    });
-  };
 
   /**
    * send logs to a destination
