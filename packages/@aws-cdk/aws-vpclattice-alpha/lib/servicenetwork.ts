@@ -13,7 +13,6 @@ import {
   AuthType,
   LoggingDestination,
 } from './index';
-
 /**
  * AccesModes
  */
@@ -101,11 +100,14 @@ export interface IServiceNetwork extends core.IResource {
   * The Amazon Resource Name (ARN) of the service network.
   */
   readonly serviceNetworkArn: string;
-
   /**
    * The Id of the Service Network
    */
   readonly serviceNetworkId: string;
+  /**
+   * Is this an imported serviceNetwork
+   */
+  readonly imported: boolean;
   /**
    * Add Lattice Service
    */
@@ -167,6 +169,10 @@ abstract class ServiceNetworkBase extends core.Resource implements IServiceNetwo
    * The Id of the Service Network
    */
   public abstract readonly serviceNetworkId: string;
+  /**
+   * Boolean
+   */
+  public abstract imported: boolean;
 
   /**
    * Add A lattice service to a lattice network
@@ -197,6 +203,14 @@ abstract class ServiceNetworkBase extends core.Resource implements IServiceNetwo
  * Create a vpcLattice Service Network.
  */
 export class ServiceNetwork extends ServiceNetworkBase {
+
+  /**
+   * Import a Service Network by Id
+   */
+  public static fromId(scope: constructs.Construct, id: string, serviceNetworkId: string ): IServiceNetwork {
+    return new ImportedServiceNetwork(scope, id, serviceNetworkId);
+  }
+
   /**
    * The Arn of the service network
    */
@@ -205,6 +219,10 @@ export class ServiceNetwork extends ServiceNetworkBase {
    * The Id of the Service Network
    */
   public readonly serviceNetworkId: string;
+  /**
+   * imported
+   */
+  public readonly imported: boolean;
   /**
    * the authType of the service network
    */
@@ -221,6 +239,7 @@ export class ServiceNetwork extends ServiceNetworkBase {
   constructor(scope: constructs.Construct, id: string, props: ServiceNetworkProps) {
     super(scope, id);
 
+    this.imported = false;
     this.authType = props.authType ?? AuthType.AWS_IAM;
 
     if (props.name !== undefined) {
@@ -313,6 +332,11 @@ export class ServiceNetwork extends ServiceNetworkBase {
    *
    */
   addStatementToAuthPolicy(statement: iam.PolicyStatement): void {
+
+    if (this.imported) {
+      throw new Error('It is not possible to add statements to an imported Service Network');
+    }
+
     this.authPolicy.addStatements(statement);
   }
 
@@ -320,6 +344,10 @@ export class ServiceNetwork extends ServiceNetworkBase {
    * Apply the AuthPolicy to a Service Network
    */
   public applyAuthPolicyToServiceNetwork(): void {
+
+    if (this.imported) {
+      throw new Error('It is not possible to apply an AuthPolicy on an imported ServiceNetwork');
+    }
 
     // check to see if there are any errors with the auth policy
     if (this.authPolicy.validateForResourcePolicy().length > 0) {
@@ -343,6 +371,10 @@ export class ServiceNetwork extends ServiceNetworkBase {
    */
   public addloggingDestination(props: AddloggingDestinationProps): void {
 
+    if (this.imported) {
+      throw new Error('It is not possible to add a logging destination to an imported Service Network');
+    }
+
     new aws_vpclattice.CfnAccessLogSubscription(this, `AccessLogSubscription${props.destination.addr}`, {
       destinationArn: props.destination.arn,
       resourceIdentifier: this.serviceNetworkId,
@@ -354,6 +386,11 @@ export class ServiceNetwork extends ServiceNetworkBase {
    * @param props ShareServiceNetwork
    */
   public share(props: ShareServiceNetworkProps): void {
+
+    if (this.imported) {
+      throw new Error('It is not possible to share an imported Service Network');
+    }
+
     new ram.CfnResourceShare(this, 'ServiceNetworkShare', {
       name: props.name,
       resourceArns: [this.serviceNetworkArn],
@@ -362,6 +399,31 @@ export class ServiceNetwork extends ServiceNetworkBase {
     });
   }
 
+}
+
+/**
+ * Import an Exisiting ServiceNetwork by Id
+ */
+class ImportedServiceNetwork extends ServiceNetworkBase {
+  /**
+   * The Id of the serviceNetwork
+   */
+  public readonly serviceNetworkId: string;
+  /**
+   * The Arn of the serviceNetwork
+   */
+  public readonly serviceNetworkArn: string;
+  /**
+   * is this an imported ServiceNetwork
+   */
+  public readonly imported: boolean = true;
+
+  constructor(scope: constructs.Construct, id: string, serviceNetworkId: string) {
+    super(scope, id);
+
+    this.serviceNetworkId = serviceNetworkId;
+    this.serviceNetworkArn = `arn:${core.Aws.PARTITION}:vpc-lattice:${core.Aws.REGION}:${core.Aws.ACCOUNT_ID}:servicenetwork/${serviceNetworkId}`;
+  }
 }
 
 /**
@@ -442,32 +504,3 @@ export class ServiceAssociation extends core.Resource {
     });
   };
 };
-
-/**
- * Props for LoggingSubscription
- */
-// export interface LoggingSubscriptionProps {
-//   /**
-//    * destination for the logs
-//    */
-//   readonly destination: LoggingDestination;
-//   /**
-//    * serviceNetwork Id
-//    */
-//   readonly serviceNetworkId: string;
-// }
-
-/**
- * A Lattice Service Network Logging subscription
- */
-// export class LoggingSubscription extends core.Resource {
-
-//   constructor(scope: constructs.Construct, id: string, props: LoggingSubscriptionProps) {
-//     super(scope, id);
-
-//     new aws_vpclattice.CfnAccessLogSubscription(this, `AccessLogSubscription${this.node.addr}`, {
-//       destinationArn: props.destination.arn,
-//       resourceIdentifier: props.serviceNetworkId,
-//     });
-//   };
-// }

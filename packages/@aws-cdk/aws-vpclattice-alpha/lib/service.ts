@@ -10,6 +10,7 @@ import {
 import * as constructs from 'constructs';
 import {
   IListener,
+  IServiceNetwork,
 }
   from './index';
 
@@ -40,41 +41,50 @@ export interface ShareServiceProps {
  */
 export interface IService extends core.IResource {
   /**
-  * The Amazon Resource Name (ARN) of the service.
-  */
+   * The Id of the Service
+   */
+  readonly serviceId: string
+  /**
+   * The Arn of the Service
+   */
   readonly serviceArn: string;
   /**
-  * The Id of the Service Network
-  */
-  readonly serviceId: string;
-  /**
-   * Allow an Odd
+   * the discovered OrgId
    */
   readonly orgId: string | undefined;
   /**
-   * the policy document for the service;
+   * Imported
+   */
+  readonly imported: boolean;
+  /**
+   * The authType of the service.
+   */
+  authType: string | undefined;
+  /**
+   * A certificate that may be used by the service
+   */
+  certificate: certificatemanager.Certificate | undefined;
+  /**
+   * A custom Domain used by the service
+   */
+  customDomain: string | undefined;
+  /**
+   * A DNS Entry for the service
+   */
+  dnsEntry: aws_vpclattice.CfnService.DnsEntryProperty | undefined;
+  /**
+  * A name for the service
+  */
+  name: string | undefined;
+  /**
+   * The auth Policy for the service.
    */
   authPolicy: iam.PolicyDocument;
 
   /**
-   * Add A vpc listener to the Service.
-   * @param props
-   */
-  shareToAccounts(props: ShareServiceProps): void;
-
-  /**
-   * Grant Access to other principals
-   */
-  grantAccess(principals: iam.IPrincipal[]): void;
-
-  /**
-   * Apply the authAuthPolicy to the Service
-   */
-  applyAuthPolicy(): iam.PolicyDocument;
-  /**
-   * Add A policyStatement to the Auth Policy
-   */
-  addPolicyStatement(statement: iam.PolicyStatement): void;
+  * associate the service with a servicenetwork.
+  */
+  associateWithServiceNetwork(serviceNetwork: IServiceNetwork): void;
 }
 
 /**
@@ -123,10 +133,70 @@ export interface LatticeServiceProps {
   readonly shares?: ShareServiceProps[] | undefined;
 }
 
+abstract class ServiceBase extends core.Resource implements IService {
+  /**
+  * The Arn of the Service
+  */
+  public abstract readonly serviceArn: string;
+  /**
+  * The Arn of the Service
+  */
+  public abstract readonly serviceId: string;
+  /**
+   * Imported
+   */
+  public abstract readonly imported: boolean;
+  /**
+   * the discovered OrgId
+   */
+  readonly orgId: string | undefined;
+  /**
+   * The authType of the service.
+   */
+  authType: string | undefined;
+  /**
+   * A certificate that may be used by the service
+   */
+  certificate: certificatemanager.Certificate | undefined;
+  /**
+   * A custom Domain used by the service
+   */
+  customDomain: string | undefined;
+  /**
+   * A DNS Entry for the service
+   */
+  dnsEntry: aws_vpclattice.CfnService.DnsEntryProperty | undefined;
+  /**
+  * A name for the service
+  */
+  name: string | undefined;
+  /**
+   * The auth Policy for the service.
+   */
+  /**
+   * The auth Policy for the service.
+   */
+  authPolicy: iam.PolicyDocument = new iam.PolicyDocument();
+
+  public associateWithServiceNetwork(serviceNetwork: IServiceNetwork): void {
+    new ServiceNetworkAssociation(this, `ServiceAssociation${serviceNetwork.serviceNetworkId}`, {
+      serviceNetwork: serviceNetwork,
+      serviceId: this.serviceId,
+    });
+  }
+}
+
 /**
  * Create a vpcLattice Service
  */
 export class Service extends core.Resource implements IService {
+
+  /**
+  * import a service from Id
+  */
+  public static fromId(scope: constructs.Construct, id: string, serviceId: string): IService {
+    return new ImportedService(scope, id, serviceId);
+  }
   /**
    * The Id of the Service
    */
@@ -139,6 +209,10 @@ export class Service extends core.Resource implements IService {
    * the discovered OrgId
    */
   readonly orgId: string | undefined;
+  /**
+   * Imported
+   */
+  readonly imported: boolean;
   /**
    * The authType of the service.
    */
@@ -169,6 +243,7 @@ export class Service extends core.Resource implements IService {
 
     this.name = props.name;
     this.authPolicy = new iam.PolicyDocument();
+    this.imported = false;
 
     if (props.name !== undefined) {
       if (props.name.match(/^[a-z0-9\-]{3,63}$/) === null) {
@@ -211,6 +286,10 @@ export class Service extends core.Resource implements IService {
    */
   public grantAccess(principals: iam.IPrincipal[]): void {
 
+    if (this.imported) {
+      throw new Error('Can not grant access to a service that is imported.');
+    }
+
     let policyStatement: iam.PolicyStatement = new iam.PolicyStatement();
 
     principals.forEach((principal) => {
@@ -223,7 +302,14 @@ export class Service extends core.Resource implements IService {
     this.authPolicy.addStatements(policyStatement);
 
   }
+  /**
+  * apply an authpolicy
+  */
   public applyAuthPolicy(): iam.PolicyDocument {
+
+    if (this.imported) {
+      throw new Error('Can not apply a policy to a service that is imported.');
+    }
 
     if (this.authType === 'NONE') {
       throw new Error('Can not apply a policy when authType is NONE');
@@ -243,17 +329,26 @@ export class Service extends core.Resource implements IService {
 
     return this.authPolicy;
   }
-
+  /**
+   * Add a PolicyStatement
+   *
+   */
   public addPolicyStatement(statement: iam.PolicyStatement): void {
+    if (this.imported) {
+      throw new Error('Can not add a policy statement to a service that is imported.');
+    }
     this.authPolicy.addStatements(statement);
   }
 
   /**
    * Share the service to other accounts via RAM
-   * @param props SharedServiceProps
    */
   public shareToAccounts(props: ShareServiceProps): void {
 
+    if (this.imported) {
+      throw new Error('Can not share a service that is imported.');
+    }
+    // create a ram resource share for the service.
     new ram.CfnResourceShare(this, 'ServiceNetworkShare', {
       name: props.name,
       resourceArns: [this.serviceArn],
@@ -261,4 +356,68 @@ export class Service extends core.Resource implements IService {
       principals: props.accounts,
     });
   }
+  /**
+   * Associate with a Service Network
+   */
+  public associateWithServiceNetwork(serviceNetwork: IServiceNetwork): void {
+    new ServiceNetworkAssociation(this, `ServiceAssociation${serviceNetwork.serviceNetworkId}`, {
+      serviceNetwork: serviceNetwork,
+      serviceId: this.serviceId,
+    });
+  }
 }
+
+/**
+ * Import a Lattice Service
+ */
+class ImportedService extends ServiceBase {
+
+  /**
+   * ServiceId
+   */
+  public readonly serviceId: string;
+  /**
+   *  ServiceArn
+   */
+  public readonly serviceArn: string;
+  /**
+   * Import
+   */
+  public readonly imported: boolean = true;
+
+  constructor(scope: constructs.Construct, id: string, serviceId: string) {
+    super(scope, id);
+
+    this.serviceId = serviceId;
+    this.serviceArn = `arn:${core.Aws.PARTITION}:vpc-lattice:${core.Aws.REGION}:${core.Aws.ACCOUNT_ID}:service/${serviceId}`;
+  };
+}
+
+/**
+ * Props for Service Assocaition
+ */
+export interface ServiceNetworkAssociationProps {
+  /**
+   * lattice Service
+   */
+  readonly serviceNetwork: IServiceNetwork;
+  /**
+   * Lattice ServiceId
+   */
+  readonly serviceId: string;
+}
+
+/**
+ * Creates an Association Between a Lattice Service and a Service Network
+ */
+export class ServiceNetworkAssociation extends core.Resource {
+
+  constructor(scope: constructs.Construct, id: string, props: ServiceNetworkAssociationProps) {
+    super(scope, id);
+
+    new aws_vpclattice.CfnServiceNetworkServiceAssociation(this, `LatticeService${this.node.addr}`, {
+      serviceIdentifier: props.serviceId,
+      serviceNetworkIdentifier: props.serviceNetwork.serviceNetworkId,
+    });
+  };
+};
