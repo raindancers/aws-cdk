@@ -16,7 +16,7 @@ import {
 /**
  * Lambda Target Properties
  */
-export interface LambdaTargetProps {
+export interface LambdaProps {
   /**
    * lambda functions that will be part of the target
   */
@@ -26,7 +26,7 @@ export interface LambdaTargetProps {
 /**
  * Creates a Lambda Target
  */
-export class LambdaTarget extends core.Resource implements ITarget {
+export class Lambda extends core.Resource implements ITarget {
   /**
    * The TargetType
    */
@@ -36,7 +36,7 @@ export class LambdaTarget extends core.Resource implements ITarget {
    */
   readonly targets: core.aws_vpclattice.CfnTargetGroup.TargetProperty[];
 
-  constructor(scope: Construct, id: string, props: LambdaTargetProps) {
+  constructor(scope: Construct, id: string, props: LambdaProps) {
     super(scope, id);
 
     let targets: aws_vpclattice.CfnTargetGroup.TargetProperty[] = [];

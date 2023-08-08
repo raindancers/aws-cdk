@@ -18,7 +18,7 @@ import {
 /**
  * IP Target Properties
  */
-export interface IpTargetProps {
+export interface IpProps {
   /**
    * IP Address's that will be part of the Target
    */
@@ -32,7 +32,7 @@ export interface IpTargetProps {
 /**
  * Create a Target using IP Address's
  */
-export class IpTarget extends core.Resource implements ITarget {
+export class Ip extends core.Resource implements ITarget {
   /**
    * The TargetType
    */
@@ -46,7 +46,7 @@ export class IpTarget extends core.Resource implements ITarget {
    */
   readonly config?: core.aws_vpclattice.CfnTargetGroup.TargetGroupConfigProperty | undefined;
 
-  constructor(scope: Construct, id: string, props: IpTargetProps) {
+  constructor(scope: Construct, id: string, props: IpProps) {
     super(scope, id);
 
     let targets: aws_vpclattice.CfnTargetGroup.TargetProperty[] = [];

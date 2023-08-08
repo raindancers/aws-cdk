@@ -19,7 +19,7 @@ import {
 /**
  * EC2 InstanceTargetProps
  */
-export interface EC2InstanceTargetProps {
+export interface EC2InstanceProps {
   /**
    * Ec2 Instances that will be part of the Target
    */
@@ -33,7 +33,7 @@ export interface EC2InstanceTargetProps {
 /**
  * Creates a new EC2 InstanceTarget
  */
-export class EC2InstanceTarget extends core.Resource implements ITarget {
+export class EC2Instance extends core.Resource implements ITarget {
   /**
    * The TargetType
    */
@@ -47,7 +47,7 @@ export class EC2InstanceTarget extends core.Resource implements ITarget {
    */
   readonly config?: core.aws_vpclattice.CfnTargetGroup.TargetGroupConfigProperty | undefined;
 
-  constructor(scope: Construct, id: string, props: EC2InstanceTargetProps) {
+  constructor(scope: Construct, id: string, props: EC2InstanceProps) {
     super(scope, id);
 
     let targets: aws_vpclattice.CfnTargetGroup.TargetProperty[] = [];

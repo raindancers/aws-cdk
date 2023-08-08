@@ -94,8 +94,6 @@ export abstract class HealthCheck {
     };
 
     if (props.healthyThresholdCount) {
-      // eslint-disable-next-line no-console
-      console.log(props.healthyThresholdCount);
       if (props.healthyThresholdCount < 1 || props.healthyThresholdCount > 10) {
         throw new Error('HealthyThresholdCount must be between 1 and 10');
       }

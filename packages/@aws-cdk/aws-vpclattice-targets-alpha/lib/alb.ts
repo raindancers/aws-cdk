@@ -19,7 +19,7 @@ import {
 /**
  * ApplicaitonLoadBalancerTargetConfiguration
  */
-export interface ApplicationConfigurationProps {
+export interface ApplicationLoadBalancerProps {
   /**
    * Albs to be in target
    */
@@ -47,7 +47,7 @@ export class ApplicationLoadBalancer extends core.Resource implements ITarget {
    */
   readonly config?: core.aws_vpclattice.CfnTargetGroup.TargetGroupConfigProperty | undefined;
 
-  constructor(scope: Construct, id: string, props: ApplicationConfigurationProps) {
+  constructor(scope: Construct, id: string, props: ApplicationLoadBalancerProps) {
     super(scope, id);
 
     let targets: aws_vpclattice.CfnTargetGroup.TargetProperty[] = [];

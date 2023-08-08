@@ -15,81 +15,115 @@
 
 <!--END STABILITY BANNER-->
 
-This package contains an example CDK construct library
-for an imaginary resource called ExampleResource.
-Its target audience are construct library authors -
-both when contributing to the core CDK codebase,
-or when writing your own construct library.
+## Targets
 
-Even though different construct libraries model vastly different services,
-a large percentage of the structure of the construct libraries
-(what we often call Layer 2 constructs, or L2s for short)
-is actually strikingly similar between all of them.
-This module hopes to present a skeleton of that structure,
-that you can literally copy&paste to your own construct library,
-and then edit to suit your needs.
-It also attempts to explain the elements of that skeleton as best as it can,
-through inline comments on the code itself.
+VpcLattice Targets are Integrations which provide the mechanism to connect a backend resources. Supported target types
+include AWS Lambdas, EC2 Instances, Application Load Balancers and IP Address. A target may optionally include a Health check.
 
-## Using when contributing to the CDK codebase
+### Lambda
 
-If you're creating a completely new module,
-feel free to copy&paste this entire directory,
-and then edit the `package.json` and `README.md`
-files as necessary (see the "Package structure" section below).
-Make sure to remove the `"private": true` line from `package.json`
-after copying, as otherwise your package will not be published!
+Lambda targets enable integrating a HTTP route from Lattice to a Lambda function.  Uniquely lambda targets do not require to be associated with a vpc that vpclattice is associated with. As such they do not require a targetConfig, and do not support health checks.
 
-If you're contributing a new resource to an existing package,
-feel free to copy&paste the following files,
-instead of the entire package:
+The following code configures a lambda target.
 
-* [`lib/example-resource.ts`](lib/example-resource.ts)
-* [`lib/private/example-resource-common.ts`](lib/private/example-resource-common.ts)
-* [`test/example-resource.test.ts`](test/example-resource.test.ts)
-* [`test/integ.example-resource.ts`](test/integ.example-resource.ts)
-* [`test/integ.example-resource.expected.json`](test/integ.example-resource.expected.json)
+```typescript
+import * as vpclattice-targets from '@aws-cdk/aws-vpclattice-targets-alpha';
 
-And proceed to edit and rename them from there.
+const fn = new lambda.Function(stack, 'LambdaFunction', {
+  runtime: lambda.Runtime.PYTHON_3_10,
+  code: lambda.Code.fromInline('def handler(event, context): pass'),
+  handler: 'index.handler',
+});
 
-## Using for your own construct libraries
+new Lambda(stack, 'Ec2InstanceTarget', {
+  lambda: [fn],
+});
+```
 
-Feel free to use this package as the basis of your own construct library;
-note, however, that you will have to change a few things in `package.json` to get it to build:
+### ECInstance
 
-* Remove the `"private": true` flag if you intend to publish your package to npmjs.org
-  (see https://docs.npmjs.com/files/package.json#private for details).
-* Remove the `devDependencies` on `cdk-build-tools`, `cdk-integ-tools` and `pkglint`.
-* Remove the `lint`, `integ`, `pkglint`, `package`, `build+test+package`, `awslint`, and `compat` entries in the `scripts` section.
-* The `build` script should be just `tsc`, `watch` just `tsc -w`, and `test` just `jest`.
-* Finally, the `awscdkio` key should be completely removed.
+EC2 Instance targets enable integrating a HTTP route from VPC Lattice to an EC2 Instance.  Instance targets must be placed on a vpc which has been associated with a VPC Lattice servicenetwork.
 
-You will also have to get rid of the integration test files,
-[`test/integ.example-resource.ts`](test/integ.example-resource.ts) and
-[`test/integ.example-resource.expected.json`](test/integ.example-resource.expected.json),
-as those styles of integration tests are not available outside the CDK main repo.
+The following code configures a EC2 Instance target, with default settings. ( Ipv4, HTTPS, tcp 443, HTTP1 )
 
-## Code structure
+```typescript
+import * as vpclattice-targets from '@aws-cdk/aws-vpclattice-targets-alpha';
 
-The code structure is explained through inline comments in the files themselves.
-Probably [`lib/example-resource.ts`](lib/example-resource.ts) is a good place to start reading.
+var vpc: ev2.Vpc;
 
-### Tests
+new vpclattice-targets.EC2Instance(stack, 'Ec2InstanceTarget2', {
+  ec2instance: [instance],
+  targetConfig: {
+    vpc: vpc
+  },
+});
+```
 
-The package contains examples of unit tests in the [`test/example-resource.test.ts`](test/example-resource.test.ts)
-file.
+### ApplicationLoadBalancer
 
-It also contains an example integration test in [`test/integ.example-resource.ts`](test/integ.example-resource.ts).
-For more information on CDK integ tests, see the
-[main `Contributing.md` file](../../../CONTRIBUTING.md#integration-tests).
+ApplicaitonLoadBalancer targets enable integrating a HTTP route from VPC Lattice to an EC2 Instance.  ApplicationLoadBalancer targets must be placed on a vpc which has been associated with a VPC Lattice servicenetwork.
 
-## Package structure
+The following code configures an ALB target, with default settings. ( Ipv4, HTTPS, tcp 443, HTTP1 )
 
-The package uses the standard build and test tools available in the CDK repo.
-Even though it's not published,
-it also uses [JSII](https://github.com/aws/jsii),
-the technology that allows CDK logic to be written once,
-but used from multiple programming languages.
-Its configuration lives the `jsii` key in `package.json`.
-It's mainly used as a validation tool in this package,
-as JSII places some constraints on the TypeScript code that you can write.
+```typescript
+import * as vpclattice-targets from '@aws-cdk/aws-vpclattice-targets-alpha';
+
+var vpc: ec2.Vpc;
+var loadbalancer: elbv2.ApplicaitonLoadBalancer
+
+ new ApplicationLoadBalancer(stack, 'ALBTarget1', {
+  alb: [loadbalancer],
+  targetConfig: {
+    vpc: vpc,
+  },
+});
+```
+
+### IP address
+
+IP address targets allow directing a route from VPC Lattice to an IP Address.  Ip address's must be within the VPC that you specify.
+
+The following code configures a IP target, with default settings. ( Ipv4, HTTPS, tcp 443, HTTP1 )
+
+```typescript
+import * as vpclattice-targets from '@aws-cdk/aws-vpclattice-targets-alpha';
+
+var vpc: ec2.Vpc;
+
+new Ip(stack, 'IpTarget3', {
+  ipAddress: [
+    '10.10.10.12',
+    '10.10.10.13',
+  ],
+  targetConfig: {
+    vpc: vpc1,
+    protocol: Protocol.HTTP,
+  },
+});
+```
+
+## HealthCheck
+
+The VpcLattice service periodically sends requests to its registered targets to test their status. These tests are called
+[*health checks.*](https://docs.aws.amazon.com/vpc-lattice/latest/ug/target-group-health-checks.html)
+
+Each VPC Lattice service routes requests only to the healthy targets. Each service checks the health of each target, using the health check settings for the target groups with which the target is registered. After your target is registered, it must pass one health check to be considered healthy.
+
+You can optionally configure non default health checks for a target, by including it with the targetConfig
+
+```typescript
+import * as vpclattice-targets from '@aws-cdk/aws-vpclattice-targets-alpha';
+
+var vpc: ec2.Vpc;
+var loadbalancer: elbv2.ApplicaitonLoadBalancer
+
+ new ApplicationLoadBalancer(stack, 'ALBTarget1', {
+  alb: [loadbalancer],
+  targetConfig: {
+    vpc: vpc,
+    healthcheck: vpclattice-targets.HealthCheck.check({
+      enabled: true,
+      healthcheckInterval: cdk.Duration.seconds(5),
+    })
+  },
+});

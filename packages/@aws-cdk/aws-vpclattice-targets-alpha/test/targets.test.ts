@@ -1,10 +1,10 @@
 //import { Template } from 'aws-cdk-lib/assertions';
 import * as core from 'aws-cdk-lib';
 import {
-  IpTarget,
+  Ip,
   ApplicationLoadBalancer,
-  EC2InstanceTarget,
-  LambdaTarget,
+  EC2Instance,
+  Lambda,
   Protocol,
 } from '../lib/index';
 
@@ -27,7 +27,7 @@ describe('Targets', () => {
   describe('create a Iptarget', () => {
     test('create a IpTarget', () => {
 
-      new IpTarget(stack, 'IpTarget1', {
+      new Ip(stack, 'IpTarget1', {
         ipAddress: [
           '10.10.10.10',
           '10.10.10.11',
@@ -37,7 +37,7 @@ describe('Targets', () => {
         },
       });
 
-      new IpTarget(stack, 'IpTarget2', {
+      new Ip(stack, 'IpTarget2', {
         ipAddress: [
           '10.10.10.12',
           '10.10.10.13',
@@ -48,7 +48,7 @@ describe('Targets', () => {
         },
       });
 
-      new IpTarget(stack, 'IpTarget3', {
+      new Ip(stack, 'IpTarget3', {
         ipAddress: [
           '10.10.10.12',
           '10.10.10.13',
@@ -103,14 +103,14 @@ describe('Targets', () => {
         machineImage: new ec2.AmazonLinuxImage(),
       });
 
-      new EC2InstanceTarget(stack, 'Ec2InstanceTarget1', {
+      new EC2Instance(stack, 'Ec2InstanceTarget1', {
         ec2instance: [instance],
         targetConfig: {
           vpc: vpc1,
         },
       });
 
-      new EC2InstanceTarget(stack, 'Ec2InstanceTarget2', {
+      new EC2Instance(stack, 'Ec2InstanceTarget2', {
         ec2instance: [instance],
         targetConfig: {
           vpc: vpc1,
@@ -118,7 +118,7 @@ describe('Targets', () => {
         },
       });
 
-      new EC2InstanceTarget(stack, 'Ec2InstanceTarget3', {
+      new EC2Instance(stack, 'Ec2InstanceTarget3', {
         ec2instance: [instance],
         targetConfig: {
           vpc: vpc1,
@@ -137,7 +137,7 @@ describe('Targets', () => {
         handler: 'index.handler',
       });
 
-      new LambdaTarget(stack, 'Ec2InstanceTarget', {
+      new Lambda(stack, 'LambdaTarget', {
         lambda: [fn],
       });
     });
