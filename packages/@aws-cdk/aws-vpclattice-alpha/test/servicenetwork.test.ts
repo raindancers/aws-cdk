@@ -13,7 +13,6 @@ import {
 
 import {
   TargetGroup,
-  Target,
   Service,
   ServiceNetwork,
   LoggingDestination,
@@ -25,10 +24,19 @@ import {
   Listener,
   RuleAccessMode,
   ServiceNetworkAccessMode,
-  HealthCheck,
-  ProtocolVersion,
+  Authorizer,
 }
   from '../lib';
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+import {
+  HealthCheck,
+  ProtocolVersion,
+  Ip,
+  Lambda,
+  ApplicationLoadBalancer,
+  EC2Instance,
+} from '@aws-cdk/aws-vpclattice-targets-alpha';
 
 /* We allow quotes in the object keys used for CloudFormation template assertions */
 /* eslint-disable quote-props */
@@ -90,13 +98,15 @@ describe('VPC Lattice', () => {
           {
             targetGroup: new TargetGroup(stack, 'lambdaTargets', {
               name: 'lambda1',
-              target: Target.lambda([
-                new lambda.Function(stack, 'lambdafunction', {
-                  runtime: lambda.Runtime.PYTHON_3_10,
-                  handler: 'handler',
-                  code: lambda.Code.fromInline('return {"statusCode": 200}'),
-                }),
-              ]),
+              target: new Lambda(stack, 'lambdaTarget', {
+                lambda: [
+                  new lambda.Function(stack, 'lambdafunction', {
+                    runtime: lambda.Runtime.PYTHON_3_10,
+                    handler: 'handler',
+                    code: lambda.Code.fromInline('return {"statusCode": 200}'),
+                  }),
+                ],
+              }),
             }),
           },
         ],
@@ -114,9 +124,9 @@ describe('VPC Lattice', () => {
           {
             targetGroup: new TargetGroup(stack, 'ipTargets', {
               name: 'ipTargets',
-              target: Target.ipAddress(
-                ['10.10.10.10'],
-                {
+              target: new Ip(stack, 'ip', {
+                ipAddress: ['10.10.10.10'],
+                targetConfig: {
                   vpc: vpc1,
                   healthcheck: HealthCheck.check({
                     healthCheckInterval: core.Duration.seconds(60),
@@ -126,7 +136,7 @@ describe('VPC Lattice', () => {
                     unhealthyThresholdCount: 2,
                   }),
                 },
-              ),
+              }),
             }),
           },
         ],
@@ -153,16 +163,16 @@ describe('VPC Lattice', () => {
         action: [
           {
             targetGroup: new TargetGroup(stack, 'instanceTargets', {
-              name: 'instanceTargets',
-              target: Target.ec2instance(
-                [
+              name: 'instanceTarget',
+              target: new EC2Instance(stack, 'ec2instance', {
+                ec2instance: [
                   new ec2.Instance(stack, 'Instance1', {
                     instanceType: new ec2.InstanceType('t2.micro'),
                     machineImage: ec2.MachineImage.latestAmazonLinux2022(),
                     vpc: new ec2.Vpc(stack, 'ec2instanceTarget'),
                   }),
                 ],
-                {
+                targetConfig: {
                   vpc: vpc1,
                   protocol: Protocol.HTTP,
                   healthcheck: HealthCheck.check({
@@ -175,7 +185,7 @@ describe('VPC Lattice', () => {
                     matcher: FixedResponse.OK,
                   }),
                 },
-              ),
+              }),
             }),
           },
         ],
@@ -188,19 +198,19 @@ describe('VPC Lattice', () => {
         action: [
           {
             targetGroup: new TargetGroup(stack, 'albv2Targets', {
-              name: 'albv2Targets',
-              target: Target.applicationLoadBalancer(
-                [
+              name: 'albv2Target',
+              target: new ApplicationLoadBalancer(stack, 'alb', {
+                alb: [
                   new elbv2.ApplicationLoadBalancer(stack, 'albv2', {
                     vpc: new ec2.Vpc(stack, 'albv2TargetVpc'),
                   }),
                 ],
-                {
+                targetConfig: {
                   port: 443,
                   protocol: Protocol.HTTPS,
                   vpc: vpc1,
                 },
-              ),
+              }),
             }),
           },
         ],
@@ -218,18 +228,19 @@ describe('VPC Lattice', () => {
           {
             targetGroup: new TargetGroup(stack, 'albv2Targets2', {
               name: 'albv2Targets',
-              target: Target.applicationLoadBalancer(
-                [
+              target: new ApplicationLoadBalancer(stack, 'albv2a', {
+                alb: [
                   new elbv2.ApplicationLoadBalancer(stack, 'albv22', {
                     vpc: new ec2.Vpc(stack, 'albv2TargetVpc2'),
                   }),
                 ],
+                targetConfig:
                 {
                   port: 8080,
                   protocol: Protocol.HTTP,
                   vpc: vpc1,
                 },
-              ),
+              }),
             }),
           },
         ],
@@ -273,6 +284,7 @@ describe('VPC Lattice', () => {
 
       servicenetwork.share({
         name: 'abcdef',
+        accounts: ['111122223333'],
       });
 
       new ServiceNetwork(stack, 'ServiceNetwork2', {
@@ -285,13 +297,23 @@ describe('VPC Lattice', () => {
         accessmode: ServiceNetworkAccessMode.UNAUTHENTICATED,
       });
 
+      new ServiceNetwork(stack, 'ServiceNetwork4', {
+        name: 'servicenetwork',
+        authorization: Authorizer.iam(),
+        accessmode: ServiceNetworkAccessMode.AUTHENTICATED_ONLY,
+        services: [latticeService],
+        vpcs: [
+          vpc1,
+        ],
+      });
+
       servicenetwork.applyAuthPolicyToServiceNetwork();
       latticeService.applyAuthPolicy();
 
     });
 
     test('creates a lattice network', () => {
-      Template.fromStack(stack).resourceCountIs('AWS::VpcLattice::ServiceNetwork', 3);
+      Template.fromStack(stack).resourceCountIs('AWS::VpcLattice::ServiceNetwork', 4);
     });
 
     test('creates a lattice service', () => {

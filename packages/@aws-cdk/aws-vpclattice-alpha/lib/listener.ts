@@ -14,20 +14,6 @@ import {
 } from './index';
 
 /**
- * AuthTypes
- */
-export enum AuthType {
-  /**
-   * No Authorization
-   */
-  NONE = 'NONE',
-  /**
-   * Use IAM Policy as
-   */
-  AWS_IAM = 'AWS_IAM'
-}
-
-/**
  * HTTP/HTTPS methods
  */
 export enum Protocol {
@@ -153,6 +139,23 @@ interface IHttpMatchProperty {
 }
 
 /**
+ * A default listener action.
+ * one of fixed response or forward needs to be provided.
+ */
+export interface DefaultListenerAction {
+  /**
+   * Provide a fixed Response
+   * @default none
+   */
+  readonly fixedResponse?: FixedResponse;
+  /**
+   * Forward to a target group
+   * @default none
+   */
+  readonly forward?: WeightedTargetGroup;
+}
+
+/**
  * Propertys to Create a Lattice Listener
  */
 export interface ListenerProps {
@@ -160,7 +163,7 @@ export interface ListenerProps {
    *  * A default action that will be taken if no rules match.
    *  @default 404 NOT Found
   */
-  readonly defaultAction?: aws_vpclattice.CfnListener.DefaultActionProperty | undefined;
+  readonly defaultAction?: DefaultListenerAction | undefined;
   /**
   * protocol that the listener will listen on
   * @default HTTPS
@@ -171,7 +174,7 @@ export interface ListenerProps {
   * @default 80 or 443 depending on the Protocol
 
   */
-  readonly port?: number | undefined
+  readonly port?: number | undefined;
   /**
   * The Name of the service.
   * @default CloudFormation provided name.
@@ -181,6 +184,11 @@ export interface ListenerProps {
    * The Id of the service that this listener is associated with.
    */
   readonly service: IService;
+  /**
+   * rules for the listener
+   * @default no rules
+   */
+  readonly rules?: RuleProp[] | undefined;
 }
 
 /**
@@ -200,7 +208,7 @@ export interface IListener extends core.IResource {
   /**
    * Add A Listener Rule to the Listener
    */
-  addListenerRule(props: AddRuleProps): void;
+  addListenerRule(props: RuleProp): void;
 
 }
 
@@ -209,30 +217,35 @@ export interface IListener extends core.IResource {
  * One of headerMatch, PathMatch, or methodMatch can be supplied,
  * the Rule can not match multiple Types
  */
-export interface AddRuleProps {
+export interface RuleProp {
   /**
   * A name for the the Rule
   */
-  readonly name: string
+  readonly name: string;
   /**
   * the action for the rule, is either a fixed Reponse, or a being sent to  Weighted TargetGroup
   */
-  readonly action: FixedResponse | WeightedTargetGroup[]
+  readonly action: FixedResponse | WeightedTargetGroup[];
   /**
   * the priority of this rule, a lower priority will be processed first
   * @default 50
   */
-  readonly priority?: number
+  readonly priority?: number;
   /**
   * the Matching criteria for the rule. This must contain at least one of
   * header, method or patchMatches
   */
-  readonly httpMatch: HTTPMatch
+  readonly httpMatch: HTTPMatch;
   /**
-   * AuthPolicy for rule
+   * List of principals that are allowed to access the resource
    * @default none
   */
   readonly allowedPrincipals?: iam.IPrincipal[] | undefined;
+  /**
+   * List of principalArns that are allowed to access the resource
+   * @default none
+  */
+  readonly allowedPrincipalArn?: string[] | undefined;
   /**
    * Set an access mode.
    * @default false
@@ -258,7 +271,7 @@ export class Listener extends core.Resource implements IListener {
   /**
    * A list of prioritys, to check for duplicates
    */
-  listenerPrioritys: number[] = []
+  listenerPrioritys: number[] = [];
   /**
    * The service this listener is attached to
    */
@@ -272,10 +285,48 @@ export class Listener extends core.Resource implements IListener {
     super(scope, id);
 
     // the default action is a not provided, it will be set to NOT_FOUND
-    let defaultAction: aws_vpclattice.CfnListener.DefaultActionProperty = props.defaultAction ?? {
-      fixedResponse: {
-        statusCode: FixedResponse.NOT_FOUND,
-      },
+    // let defaultAction: aws_vpclattice.CfnListener.DefaultActionProperty = props.defaultAction ?? {
+    //   fixedResponse: {
+    //     statusCode: FixedResponse.NOT_FOUND,
+    //   },
+    // };
+
+    let defaultAction: aws_vpclattice.CfnListener.DefaultActionProperty;
+    if (props.defaultAction) {
+      // throw an error if both props.defaultAction.fixedaction and props.defaultAction.forward are set
+      if (props.defaultAction.fixedResponse && props.defaultAction.forward) {
+        throw new Error('Both fixedResponse and foward are set');
+      };
+      // throw an error if neither of props.defaultAction.fixedaction and props.defaultAction.forward are set
+      if (!props.defaultAction.fixedResponse && !props.defaultAction.forward) {
+        throw new Error('At least one of fixedResponse or foward must be set');
+      };
+
+      // set the default action to the fixedResponse
+      if (props.defaultAction.fixedResponse) {
+        defaultAction = {
+          fixedResponse: {
+            statusCode: props.defaultAction.fixedResponse,
+          },
+        };
+      } else {
+      // set the default action to the foward
+        defaultAction = {
+          forward: {
+            targetGroups: [{
+              targetGroupIdentifier: props.defaultAction.forward?.targetGroup.targetGroupId as string,
+              // the properties below are optional
+              weight: props.defaultAction.forward?.weight,
+            }],
+          },
+        };
+      };
+    } else {
+      defaultAction = {
+        fixedResponse: {
+          statusCode: FixedResponse.NOT_FOUND,
+        },
+      };
     };
 
     // default to using HTTPS
@@ -316,13 +367,19 @@ export class Listener extends core.Resource implements IListener {
     this.listenerArn = listener.attrArn;
     this.service = props.service;
 
+    if (props.rules) {
+      props.rules.forEach((rule) => {
+        this.addListenerRule(rule);
+      });
+      this.service.applyAuthPolicy();
+    }
   }
 
   /**
    * add a rule to the listener
    * @param props AddRuleProps
    */
-  public addListenerRule(props: AddRuleProps): void {
+  addListenerRule(props: RuleProp): void {
 
     let policyStatement: iam.PolicyStatement = new iam.PolicyStatement();
 
@@ -353,6 +410,13 @@ export class Listener extends core.Resource implements IListener {
         policyStatement.addPrincipals(principal);
       });
     };
+
+    // conditionally add principals by arn to the the policy
+    if (props.allowedPrincipalArn) {
+      props.allowedPrincipalArn.forEach((arn) => {
+        policyStatement.addPrincipals(new iam.ArnPrincipal(arn));
+      });
+    }
 
     /**
     * Create the Action for the Rule

@@ -5,12 +5,15 @@ import {
   aws_certificatemanager as certificatemanager,
   aws_ram as ram,
   custom_resources as cr,
+  aws_route53 as r53,
 }
   from 'aws-cdk-lib';
 import * as constructs from 'constructs';
 import {
   IListener,
   IServiceNetwork,
+  IAuthorizer,
+  AuthorizerMode,
 }
   from './index';
 
@@ -26,13 +29,13 @@ export interface ShareServiceProps {
    * Allow External Principals
    * @default false
    */
-  readonly allowExternalPrincipals?: boolean | undefined
+  readonly allowExternalPrincipals?: boolean | undefined;
   /**
    * Principals to share the service with.
    * TO DO, this needs some work
    * @default none
    */
-  readonly accounts: string[] | undefined
+  readonly accounts: string[] | undefined;
 }
 
 /**
@@ -43,7 +46,7 @@ export interface IService extends core.IResource {
   /**
    * The Id of the Service
    */
-  readonly serviceId: string
+  readonly serviceId: string;
   /**
    * The Arn of the Service
    */
@@ -59,7 +62,7 @@ export interface IService extends core.IResource {
   /**
    * The authType of the service.
    */
-  authType: string | undefined;
+  readonly authorization: IAuthorizer | undefined;
   /**
    * A certificate that may be used by the service
    */
@@ -68,10 +71,6 @@ export interface IService extends core.IResource {
    * A custom Domain used by the service
    */
   customDomain: string | undefined;
-  /**
-   * A DNS Entry for the service
-   */
-  dnsEntry: aws_vpclattice.CfnService.DnsEntryProperty | undefined;
   /**
   * A name for the service
   */
@@ -85,12 +84,16 @@ export interface IService extends core.IResource {
   * associate the service with a servicenetwork.
   */
   associateWithServiceNetwork(serviceNetwork: IServiceNetwork): void;
+  /**
+   * apply an authpolicy to the servicenetwork
+   */
+  applyAuthPolicy(): iam.PolicyDocument;
 }
 
 /**
  * Properties for a Lattice Service
  */
-export interface LatticeServiceProps {
+export interface ServiceProps {
 
   /**
    * Name for the service
@@ -102,7 +105,7 @@ export interface LatticeServiceProps {
    * The authType of the Service
    * @default 'AWS_IAM'
    */
-  readonly authType?: string | undefined;
+  readonly authorization?: IAuthorizer | undefined;
 
   /**
    * Listeners that will be attached to the service
@@ -124,13 +127,18 @@ export interface LatticeServiceProps {
    * A custom hosname
    * @default no hostname is used
    */
-  readonly dnsEntry?: aws_vpclattice.CfnService.DnsEntryProperty | undefined;
+  readonly hostedZone?: r53.IHostedZone | undefined;
 
   /**
    * Share Service
    *@default no sharing of the service
    */
   readonly shares?: ShareServiceProps[] | undefined;
+  /**
+   * ServiceNetwork to associate with.
+   * @default will not assocaite with any serviceNetwork.
+   */
+  readonly serviceNetwork?: IServiceNetwork | undefined;
 }
 
 abstract class ServiceBase extends core.Resource implements IService {
@@ -153,7 +161,7 @@ abstract class ServiceBase extends core.Resource implements IService {
   /**
    * The authType of the service.
    */
-  authType: string | undefined;
+  readonly authorization: IAuthorizer | undefined;
   /**
    * A certificate that may be used by the service
    */
@@ -162,10 +170,6 @@ abstract class ServiceBase extends core.Resource implements IService {
    * A custom Domain used by the service
    */
   customDomain: string | undefined;
-  /**
-   * A DNS Entry for the service
-   */
-  dnsEntry: aws_vpclattice.CfnService.DnsEntryProperty | undefined;
   /**
   * A name for the service
   */
@@ -184,6 +188,33 @@ abstract class ServiceBase extends core.Resource implements IService {
       serviceId: this.serviceId,
     });
   }
+
+  public applyAuthPolicy(): iam.PolicyDocument {
+
+    if (this.imported) {
+      throw new Error('Can not apply a policy to a service that is imported.');
+    }
+
+    if (this.authorization) {
+      if (this.authorization.type === AuthorizerMode.NONE) {
+        throw new Error('Can not apply a policy when authType is NONE');
+      }
+    };
+
+    if (this.authPolicy.validateForResourcePolicy().length > 0) {
+      throw new Error(
+        `The following errors were found in the policy: \n${this.authPolicy.validateForResourcePolicy()} \n ${this.authPolicy}`);
+    }
+
+    // interate over all statements and add conditons.
+
+    new aws_vpclattice.CfnAuthPolicy(this, 'ServiceAuthPolicy', {
+      policy: this.authPolicy.toJSON(),
+      resourceIdentifier: this.serviceId,
+    });
+
+    return this.authPolicy;
+  }
 }
 
 /**
@@ -194,13 +225,13 @@ export class Service extends core.Resource implements IService {
   /**
   * import a service from Id
   */
-  public static fromId(scope: constructs.Construct, id: string, serviceId: string): IService {
+  public static fromServiceId(scope: constructs.Construct, id: string, serviceId: string): IService {
     return new ImportedService(scope, id, serviceId);
   }
   /**
    * The Id of the Service
    */
-  readonly serviceId: string
+  readonly serviceId: string;
   /**
    * The Arn of the Service
    */
@@ -216,7 +247,7 @@ export class Service extends core.Resource implements IService {
   /**
    * The authType of the service.
    */
-  authType: string | undefined;
+  readonly authorization: IAuthorizer | undefined;
   /**
    * A certificate that may be used by the service
    */
@@ -228,7 +259,7 @@ export class Service extends core.Resource implements IService {
   /**
    * A DNS Entry for the service
    */
-  dnsEntry: aws_vpclattice.CfnService.DnsEntryProperty | undefined;
+  hostedZone: r53.IHostedZone | undefined;
   /**
   * A name for the service
   */
@@ -238,7 +269,7 @@ export class Service extends core.Resource implements IService {
    */
   authPolicy: iam.PolicyDocument;
 
-  constructor(scope: constructs.Construct, id: string, props: LatticeServiceProps) {
+  constructor(scope: constructs.Construct, id: string, props: ServiceProps) {
     super(scope, id);
 
     this.name = props.name;
@@ -251,13 +282,26 @@ export class Service extends core.Resource implements IService {
       }
     }
 
+    let dnsEntry: aws_vpclattice.CfnService.DnsEntryProperty | undefined = undefined;
+    if (props.hostedZone) {
+      dnsEntry = {
+        domainName: props.hostedZone.zoneName,
+        hostedZoneId: props.hostedZone.hostedZoneId,
+      };
+    }
+
     const service = new aws_vpclattice.CfnService(this, 'Resource', {
-      authType: props.authType ?? 'AWS_IAM',
+      authType: props.authorization?.type ?? 'AWS_IAM',
       certificateArn: this.certificate?.certificateArn,
       customDomainName: this.customDomain,
-      dnsEntry: this.dnsEntry,
+      dnsEntry: dnsEntry,
       name: this.name,
     });
+
+    // associate with serviceNetwork
+    if (props.serviceNetwork !== undefined) {
+      this.associateWithServiceNetwork(props.serviceNetwork);
+    };
 
     this.serviceId = service.attrId;
     this.serviceArn = service.attrArn;
@@ -311,7 +355,7 @@ export class Service extends core.Resource implements IService {
       throw new Error('Can not apply a policy to a service that is imported.');
     }
 
-    if (this.authType === 'NONE') {
+    if (this.authorization?.type === AuthorizerMode.NONE) {
       throw new Error('Can not apply a policy when authType is NONE');
     }
 
@@ -360,7 +404,7 @@ export class Service extends core.Resource implements IService {
    * Associate with a Service Network
    */
   public associateWithServiceNetwork(serviceNetwork: IServiceNetwork): void {
-    new ServiceNetworkAssociation(this, `ServiceAssociation${serviceNetwork.serviceNetworkId}`, {
+    new ServiceNetworkAssociation(this, 'ServiceNetworkAssociation', {
       serviceNetwork: serviceNetwork,
       serviceId: this.serviceId,
     });
@@ -409,6 +453,7 @@ export interface ServiceNetworkAssociationProps {
 
 /**
  * Creates an Association Between a Lattice Service and a Service Network
+ * consider using .associateWithServiceNetwork
  */
 export class ServiceNetworkAssociation extends core.Resource {
 

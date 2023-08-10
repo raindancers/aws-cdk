@@ -1,37 +1,16 @@
-//import { Template } from 'aws-cdk-lib/assertions';
 import * as core from 'aws-cdk-lib';
-// import {
-//   aws_ec2 as ec2,
-//   aws_s3 as s3,
-//   aws_kinesis as kinesis,
-//   aws_logs as log,
-//   aws_lambda as lambda,
-//   aws_iam as iam,
-//   aws_elasticloadbalancingv2 as elbv2,
-// }
-//   from 'aws-cdk-lib';
 
 import {
-  // TargetGroup,
-  // Target,
   Service,
   ServiceNetwork,
   Listener,
-  //AuthType,
-  // ServiceNetwork,
-  // LoggingDestination,
-  // HTTPMethods,
   ServiceNetworkAccessMode,
-  HealthCheck,
   Protocol,
-  ProtocolVersion,
-  // PathMatchType,
-  // MatchOperator,
+  Authorizer,
 }
-  from '../lib';
-import { AuthType } from '../lib/listener';
+  from '../lib/index';
 
-describe('Lattice Input Checking', () => {
+describe('Lattice  Service Input Checking', () => {
   let stack: core.Stack;
   beforeEach(() => {
     // try to factor out as much boilerplate test setup to before methods -
@@ -74,37 +53,6 @@ describe('Listener Errors', () => {
     });
   });
 
-  // input checks for targets
-  describe('Bad HealthCheck Interval', () => {
-    test('throws error on out of range health check interval', () => {
-      expect(() => {
-        HealthCheck.check({
-          healthCheckInterval: core.Duration.seconds(0),
-        });
-      }).toThrowError('HealthCheckInterval must be between 5 and 300 seconds');
-    });
-  });
-
-  describe('Bad HealthCheck Timeout', () => {
-    test('throws error on out of range health check interval', () => {
-      expect(() => {
-        HealthCheck.check({
-          healthCheckTimeout: core.Duration.seconds(0),
-        });
-      }).toThrowError('HealthCheckTimeout must be between 1 and 120seconds');
-    });
-  });
-
-  describe('Bad Protocol Version', () => {
-    test('throws error if Protocol Verison is GRPC', () => {
-      expect(() => {
-        HealthCheck.check({
-          protocolVersion: ProtocolVersion.GRPC,
-        });
-      }).toThrowError('GRPC is not supported');
-    });
-  });
-
   // service network bad iputs
   describe('Bad Name', () => {
     test('Name does match regex', () => {
@@ -121,7 +69,7 @@ describe('Listener Errors', () => {
     test('AuthType NONE and AccessMode UNAUTHENTICATED', () => {
       expect(() => {
         new ServiceNetwork(stack, 'ServiceNetwork', {
-          authType: AuthType.NONE,
+          authorization: Authorizer.none(),
           accessmode: ServiceNetworkAccessMode.UNAUTHENTICATED,
         });
       }).toThrowError('AccessMode can not be set if AuthType is NONE');
@@ -141,3 +89,4 @@ describe('Listener Errors', () => {
   });
 
 });
+
