@@ -247,17 +247,17 @@ describe('VPC Lattice', () => {
         httpMatch: {
           headerMatches: [
             {
-              headername: 'header1',
+              headerName: 'header1',
               matchValue: 'value1',
               matchOperator: MatchOperator.EXACT,
             },
             {
-              headername: 'header2',
+              headerName: 'header2',
               matchValue: 'value2',
               matchOperator: MatchOperator.CONTAINS,
             },
             {
-              headername: 'header3',
+              headerName: 'header3',
               matchValue: 'value3',
               matchOperator: MatchOperator.PREFIX,
             },

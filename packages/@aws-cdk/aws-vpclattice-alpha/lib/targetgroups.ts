@@ -113,7 +113,7 @@ export interface WeightedTargetGroup {
   /**
    * A target Group
    */
-  readonly targetGroup: TargetGroup;
+  readonly targetGroup: ITargetGroup;
   /**
   * A weight for the target group.
   * @default 100

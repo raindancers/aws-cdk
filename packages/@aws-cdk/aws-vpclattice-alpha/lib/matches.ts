@@ -34,7 +34,7 @@ export interface HeaderMatch {
   /**
   * the name of the header to match
   */
-  readonly headername: string,
+  readonly headerName: string,
   /**
   * Should the match be case sensitive?
   * @default true

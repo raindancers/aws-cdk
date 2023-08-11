@@ -337,17 +337,15 @@ export class Listener extends core.Resource implements IListener {
       if (props.port < 0 || props.port > 65535) {
         throw new Error('Port out of range');
       }
-    }
+    };
 
     // if its not specified, set it to the default port based on the protcol
     let port: number;
     if (protocol === Protocol.HTTP) {
       port = props.port ?? 80;
-    } else if ( protocol === Protocol.HTTPS) {
-      port = props.port ?? 443;
     } else {
-      throw new Error('Protocol not supported');
-    }
+      port = props.port ?? 443;
+    };
 
     if (props.name !== undefined) {
       if (props.name.match(/^[a-z0-9\-]{3,63}$/) === null) {
@@ -371,7 +369,8 @@ export class Listener extends core.Resource implements IListener {
       props.rules.forEach((rule) => {
         this.addListenerRule(rule);
       });
-      this.service.applyAuthPolicy();
+      // this seems like an error.
+      // this.service.applyAuthPolicy();
     }
   }
 
@@ -453,12 +452,11 @@ export class Listener extends core.Resource implements IListener {
       };
     }
 
-    /**
-    * Validate the priority is not already in use.
-    */
-    if (priority in this.listenerPrioritys) {
-      throw new Error('Priority is already in use, ensure all listerner rules have unique prioritys');
+    // throw an error if priority is already in listener
+    if (this.listenerPrioritys.includes(priority)) {
+      throw new Error('Priority is already in use, ensure all listener rules have unique prioritys');
     }
+
     this.listenerPrioritys.push(priority);
     // check to see if priority is between 1 and 100
     if (priority < 1 || priority > 100) {
@@ -516,36 +514,36 @@ export class Listener extends core.Resource implements IListener {
 
       props.httpMatch.headerMatches.forEach((headerMatch) => {
 
-        const matchOperator = headerMatch.matchOperator ?? MatchOperator.EXACT;
+        const matchOperator = headerMatch.matchOperator;
 
         if (matchOperator === MatchOperator.EXACT) {
           headerMatches.push({
-            name: headerMatch.headername,
+            name: headerMatch.headerName,
             match: {
               exact: headerMatch.matchValue,
             },
             caseSensitive: headerMatch.caseSensitive ?? false,
           });
-          policyStatement.addCondition('StringEquals', { [`vpc-lattice-svcs:RequestHeader/${headerMatch.headername}`]: headerMatch.matchValue } );
+          policyStatement.addCondition('StringEquals', { [`vpc-lattice-svcs:RequestHeader/${headerMatch.headerName}`]: headerMatch.matchValue } );
         } else if (matchOperator === MatchOperator.CONTAINS) {
           headerMatches.push({
-            name: headerMatch.headername,
+            name: headerMatch.headerName,
             match: {
               contains: headerMatch.matchValue,
             },
             caseSensitive: headerMatch.caseSensitive ?? false,
           });
-          policyStatement.addCondition('StringEquals', { [`vpc-lattice-svcs:RequestHeader/${headerMatch.headername}`]: `*${headerMatch.matchValue}*` });
+          policyStatement.addCondition('StringEquals', { [`vpc-lattice-svcs:RequestHeader/${headerMatch.headerName}`]: `*${headerMatch.matchValue}*` });
 
         } else if (matchOperator === MatchOperator.PREFIX) {
           headerMatches.push({
-            name: headerMatch.headername,
+            name: headerMatch.headerName,
             match: {
               prefix: headerMatch.matchValue,
             },
             caseSensitive: headerMatch.caseSensitive ?? false,
           });
-          policyStatement.addCondition('StringEquals', { [`vpc-lattice-svcs:RequestHeader/${headerMatch.headername}`]: `${headerMatch.matchValue}*` });
+          policyStatement.addCondition('StringEquals', { [`vpc-lattice-svcs:RequestHeader/${headerMatch.headerName}`]: `${headerMatch.matchValue}*` });
         }
       });
       match.headerMatches = headerMatches;
