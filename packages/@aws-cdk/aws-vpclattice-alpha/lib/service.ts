@@ -14,6 +14,7 @@ import {
   IServiceNetwork,
   IAuthorizer,
   AuthorizerMode,
+  Authorizer,
 }
   from './index';
 
@@ -60,10 +61,6 @@ export interface IService extends core.IResource {
    */
   readonly imported: boolean;
   /**
-   * The authType of the service.
-   */
-  readonly authorization: IAuthorizer | undefined;
-  /**
    * A certificate that may be used by the service
    */
   certificate: certificatemanager.Certificate | undefined;
@@ -80,14 +77,6 @@ export interface IService extends core.IResource {
    */
   authPolicy: iam.PolicyDocument;
 
-  /**
-  * associate the service with a servicenetwork.
-  */
-  associateWithServiceNetwork(serviceNetwork: IServiceNetwork): void;
-  /**
-   * apply an authpolicy to the servicenetwork
-   */
-  applyAuthPolicy(): iam.PolicyDocument;
 }
 
 /**
@@ -159,10 +148,6 @@ abstract class ServiceBase extends core.Resource implements IService {
    */
   readonly orgId: string | undefined;
   /**
-   * The authType of the service.
-   */
-  readonly authorization: IAuthorizer | undefined;
-  /**
    * A certificate that may be used by the service
    */
   certificate: certificatemanager.Certificate | undefined;
@@ -182,39 +167,6 @@ abstract class ServiceBase extends core.Resource implements IService {
    */
   authPolicy: iam.PolicyDocument = new iam.PolicyDocument();
 
-  public associateWithServiceNetwork(serviceNetwork: IServiceNetwork): void {
-    new ServiceNetworkAssociation(this, `ServiceAssociation${serviceNetwork.serviceNetworkId}`, {
-      serviceNetwork: serviceNetwork,
-      serviceId: this.serviceId,
-    });
-  }
-
-  public applyAuthPolicy(): iam.PolicyDocument {
-
-    if (this.imported) {
-      throw new Error('Can not apply a policy to a service that is imported.');
-    }
-
-    if (this.authorization) {
-      if (this.authorization.type === AuthorizerMode.NONE) {
-        throw new Error('Can not apply a policy when authType is NONE');
-      }
-    };
-
-    if (this.authPolicy.validateForResourcePolicy().length > 0) {
-      throw new Error(
-        `The following errors were found in the policy: \n${this.authPolicy.validateForResourcePolicy()} \n ${this.authPolicy}`);
-    }
-
-    // interate over all statements and add conditons.
-
-    new aws_vpclattice.CfnAuthPolicy(this, 'ServiceAuthPolicy', {
-      policy: this.authPolicy.toJSON(),
-      resourceIdentifier: this.serviceId,
-    });
-
-    return this.authPolicy;
-  }
 }
 
 /**
@@ -247,7 +199,7 @@ export class Service extends core.Resource implements IService {
   /**
    * The authType of the service.
    */
-  readonly authorization: IAuthorizer | undefined;
+  readonly authorizer: IAuthorizer;
   /**
    * A certificate that may be used by the service
    */
@@ -276,6 +228,8 @@ export class Service extends core.Resource implements IService {
     this.authPolicy = new iam.PolicyDocument();
     this.imported = false;
 
+    this.authorizer = props.authorization ?? Authorizer.iam();
+
     if (props.name !== undefined) {
       if (props.name.match(/^[a-z0-9\-]{3,63}$/) === null) {
         throw new Error('The service  name must be between 3 and 63 characters long. The name can only contain alphanumeric characters and hyphens. The name must be unique to the account.');
@@ -291,7 +245,7 @@ export class Service extends core.Resource implements IService {
     }
 
     const service = new aws_vpclattice.CfnService(this, 'Resource', {
-      authType: props.authorization?.type ?? 'AWS_IAM',
+      authType: props.authorization?.type ?? AuthorizerMode.AWS_IAM,
       certificateArn: this.certificate?.certificateArn,
       customDomainName: this.customDomain,
       dnsEntry: dnsEntry,
@@ -330,10 +284,6 @@ export class Service extends core.Resource implements IService {
    */
   public grantAccess(principals: iam.IPrincipal[]): void {
 
-    if (this.imported) {
-      throw new Error('Can not grant access to a service that is imported.');
-    }
-
     let policyStatement: iam.PolicyStatement = new iam.PolicyStatement();
 
     principals.forEach((principal) => {
@@ -351,17 +301,14 @@ export class Service extends core.Resource implements IService {
   */
   public applyAuthPolicy(): iam.PolicyDocument {
 
-    if (this.imported) {
-      throw new Error('Can not apply a policy to a service that is imported.');
-    }
-
-    if (this.authorization?.type === AuthorizerMode.NONE) {
-      throw new Error('Can not apply a policy when authType is NONE');
-    }
+    if (this.authorizer) {
+      if (this.authorizer.type == AuthorizerMode.NONE) {
+        throw new Error('Can not apply a policy when authType is NONE');
+      }
+    };
 
     if (this.authPolicy.validateForResourcePolicy().length > 0) {
-      throw new Error(
-        `The following errors were found in the policy: \n${this.authPolicy.validateForResourcePolicy()} \n ${this.authPolicy}`);
+      throw new Error('The provided auth policy is not a valid Resource Policy');
     }
 
     // interate over all statements and add conditons.
@@ -378,9 +325,7 @@ export class Service extends core.Resource implements IService {
    *
    */
   public addPolicyStatement(statement: iam.PolicyStatement): void {
-    if (this.imported) {
-      throw new Error('Can not add a policy statement to a service that is imported.');
-    }
+
     this.authPolicy.addStatements(statement);
   }
 
@@ -389,9 +334,6 @@ export class Service extends core.Resource implements IService {
    */
   public shareToAccounts(props: ShareServiceProps): void {
 
-    if (this.imported) {
-      throw new Error('Can not share a service that is imported.');
-    }
     // create a ram resource share for the service.
     new ram.CfnResourceShare(this, 'ServiceNetworkShare', {
       name: props.name,
