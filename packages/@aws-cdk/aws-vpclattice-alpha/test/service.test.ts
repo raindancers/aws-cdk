@@ -59,6 +59,21 @@ describe('Lattice Service Tests', () => {
       Template.fromStack(stack).resourceCountIs('AWS::VpcLattice::AuthPolicy', 1);
     });
 
+    test('2a. Catch invalid AuthPolicy', () => {
+      expect(() => {
+        const service = new Service(stack, 'Service', {
+          name: 'servicename',
+        });
+        // not providing a principal will render an incorrect resource policy
+        service.addPolicyStatement(new iam.PolicyStatement({
+          actions: ['vpc-lattice-svcs:Invoke'],
+          resources: ['*'],
+          effect: iam.Effect.ALLOW,
+        }));
+        service.applyAuthPolicy();
+      }).toThrowError('The provided auth policy is not a valid Resource Policy');
+    });
+
     test('3. Try to apply an AuthPolicy , when authorizer type is NONE', () => {
       expect(() => {
         const service = new Service(stack, 'Service', {

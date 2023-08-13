@@ -380,10 +380,6 @@ export class ServiceNetwork extends ServiceNetworkBase {
    */
   public addStatementToAuthPolicy(statement: iam.PolicyStatement): void {
 
-    if (this.imported) {
-      throw new Error('It is not possible to add statements to an imported Service Network');
-    }
-
     this.authPolicy.addStatements(statement);
   }
 
@@ -392,17 +388,13 @@ export class ServiceNetwork extends ServiceNetworkBase {
    */
   public applyAuthPolicyToServiceNetwork(): void {
 
-    if (this.imported) {
-      throw new Error('It is not possible to apply an AuthPolicy on an imported ServiceNetwork');
-    }
-
     // check to see if there are any errors with the auth policy
     if (this.authPolicy.validateForResourcePolicy().length > 0) {
       throw new Error(`Auth Policy for granting access on  Service Network is invalid\n, ${this.authPolicy}`);
     }
     // check to see if the AuthType is AWS_IAM
     if (this.authType !== AuthorizerMode.AWS_IAM ) {
-      throw new Error(`AuthType must be ${AuthorizerMode.AWS_IAM} to add an Auth Policy`);
+      throw new Error('AuthType must be AuthorizerMode.AWS_IAM to add an Auth Policy');
     }
 
     // attach the AuthPolicy to the Service Network
@@ -418,10 +410,6 @@ export class ServiceNetwork extends ServiceNetworkBase {
    */
   public addloggingDestination(props: AddloggingDestinationProps): void {
 
-    if (this.imported) {
-      throw new Error('It is not possible to add a logging destination to an imported Service Network');
-    }
-
     new aws_vpclattice.CfnAccessLogSubscription(this, `AccessLogSubscription${props.destination.addr}`, {
       destinationArn: props.destination.arn,
       resourceIdentifier: this.serviceNetworkId,
@@ -433,10 +421,6 @@ export class ServiceNetwork extends ServiceNetworkBase {
    * @param props ShareServiceNetwork
    */
   public share(props: ShareServiceNetworkProps): void {
-
-    if (this.imported) {
-      throw new Error('It is not possible to share an imported Service Network');
-    }
 
     new ram.CfnResourceShare(this, 'ServiceNetworkShare', {
       name: props.name,
@@ -484,14 +468,6 @@ class ImportedServiceNetwork extends ServiceNetworkBase {
 
   constructor(scope: constructs.Construct, id: string, props: ImportedServiceNetworkProps) {
     super(scope, id);
-
-    // throw an error unless only one of props.serviceNetworkId or props.serviceNetworkName is are defined
-    if (props.serviceNetworkName && props.serviceNetworkId) {
-      throw new Error('Only one of serviceNetworkName or serviceNetworkId can be defined');
-    }
-    if (!props.serviceNetworkName && !props.serviceNetworkId) {
-      throw new Error('One of serviceNetworkName or serviceNetworkId must be defined');
-    }
 
     if (props.serviceNetworkId) {
       this.serviceNetworkId = props.serviceNetworkId;
