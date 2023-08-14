@@ -1307,5 +1307,26 @@
   "paymentcryptographydata": {
     "prefix": "payment-cryptography-data",
     "name": "PaymentCryptographyData"
+  },
+  "codegurusecurity": {
+    "prefix": "codeguru-security",
+    "name": "CodeGuruSecurity"
+  },
+  "verifiedpermissions": {
+    "name": "VerifiedPermissions"
+  },
+  "appfabric": {
+    "name": "AppFabric"
+  },
+  "medicalimaging": {
+    "prefix": "medical-imaging",
+    "name": "MedicalImaging"
+  },
+  "entityresolution": {
+    "name": "EntityResolution"
+  },
+  "managedblockchainquery": {
+    "prefix": "managedblockchain-query",
+    "name": "ManagedBlockchainQuery"
   }
 }

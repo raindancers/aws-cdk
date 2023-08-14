@@ -171,13 +171,13 @@ export class AppStagingSynthesizer extends StackSynthesizer implements IReusable
   private constructor(private readonly props: AppStagingSynthesizerProps) {
     super();
 
+    const defaultIdentities = DeploymentIdentities.defaultBootstrapRoles();
+    const identities = props.deploymentIdentities ?? DeploymentIdentities.defaultBootstrapRoles();
+
     this.roles = {
-      deploymentRole: props.deploymentIdentities?.roles.deploymentRole ??
-        BootstrapRole.fromRoleArn(AppStagingSynthesizer.DEFAULT_DEPLOY_ROLE_ARN),
-      cloudFormationExecutionRole: props.deploymentIdentities?.roles.cloudFormationExecutionRole ??
-        BootstrapRole.fromRoleArn(AppStagingSynthesizer.DEFAULT_CLOUDFORMATION_ROLE_ARN),
-      lookupRole: this.props.deploymentIdentities?.roles.lookupRole ??
-        BootstrapRole.fromRoleArn(AppStagingSynthesizer.DEFAULT_LOOKUP_ROLE_ARN),
+      deploymentRole: identities.deploymentRole ?? defaultIdentities.deploymentRole!,
+      cloudFormationExecutionRole: identities.cloudFormationExecutionRole ?? defaultIdentities.cloudFormationExecutionRole!,
+      lookupRole: identities.lookupRole ?? identities.lookupRole!,
     };
   }
 
@@ -257,8 +257,8 @@ export class AppStagingSynthesizer extends StackSynthesizer implements IReusable
       throw new Error([
         'It is not safe to use AppStagingSynthesizer for both environment-agnostic and environment-aware stacks at the same time.',
         'Please either specify environments for all stacks or no stacks in the CDK App.',
-        `Stacks with environment: ${describeStacks(agnosticStacks)}.`,
-        `Stacks without environment: ${describeStacks(envAwareStacks)}.`,
+        `At least these stacks with environment: ${describeStacks(envAwareStacks)}.`,
+        `At least these stacks without environment: ${describeStacks(agnosticStacks)}.`,
       ].join(' '));
     }
   }

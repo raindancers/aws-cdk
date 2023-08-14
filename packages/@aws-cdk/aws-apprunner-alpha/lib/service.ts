@@ -689,7 +689,7 @@ export interface ServiceProps {
    *
    * @see https://docs.aws.amazon.com/apprunner/latest/dg/security_iam_service-with-iam.html#security_iam_service-with-iam-roles-service.instance
    *
-   * @default - no instance role attached.
+   * @default - generate a new instance role.
    */
   readonly instanceRole?: iam.IRole;
 
@@ -959,7 +959,7 @@ export abstract class Secret {
 /**
  * The App Runner Service.
  */
-export class Service extends cdk.Resource {
+export class Service extends cdk.Resource implements iam.IGrantable {
   /**
    * Import from service name.
    */
@@ -993,9 +993,10 @@ export class Service extends cdk.Resource {
 
     return new Import(scope, id);
   }
+  public readonly grantPrincipal: iam.IPrincipal;
   private readonly props: ServiceProps;
   private accessRole?: iam.IRole;
-  private instanceRole?: iam.IRole;
+  private instanceRole: iam.IRole;
   private source: SourceConfig;
 
   /**
@@ -1041,7 +1042,6 @@ export class Service extends cdk.Resource {
 
   /**
    * The name of the service.
-   * @attribute
    */
   readonly serviceName: string;
 
@@ -1052,7 +1052,8 @@ export class Service extends cdk.Resource {
     this.source = source;
     this.props = props;
 
-    this.instanceRole = this.props.instanceRole;
+    this.instanceRole = this.props.instanceRole ?? this.createInstanceRole();
+    this.grantPrincipal = this.instanceRole;
 
     const environmentVariables = this.getEnvironmentVariables();
     const environmentSecrets = this.getEnvironmentSecrets();
@@ -1074,6 +1075,7 @@ export class Service extends cdk.Resource {
     }
 
     const resource = new CfnService(this, 'Resource', {
+      serviceName: this.props.serviceName,
       instanceConfiguration: {
         cpu: this.props.cpu?.unit,
         memory: this.props.memory?.unit,
@@ -1106,7 +1108,22 @@ export class Service extends cdk.Resource {
     this.serviceId = resource.attrServiceId;
     this.serviceUrl = resource.attrServiceUrl;
     this.serviceStatus = resource.attrStatus;
-    this.serviceName = resource.ref;
+    /**
+     * Cloudformaton does not return the serviceName attribute so we extract it from the serviceArn.
+     * The ARN comes with this format:
+     * arn:aws:apprunner:us-east-1:123456789012:service/SERVICE_NAME/SERVICE_ID
+     */
+    // First, get the last element by splitting with ':'
+    const resourceFullName = cdk.Fn.select(5, cdk.Fn.split(':', this.serviceArn));
+    // Now, split the resourceFullName with '/' to get the serviceName
+    this.serviceName = cdk.Fn.select(1, cdk.Fn.split('/', resourceFullName));
+  }
+
+  /**
+   * Adds a statement to the instance role.
+   */
+  public addToRolePolicy(statement: iam.PolicyStatement) {
+    this.instanceRole.addToPrincipalPolicy(statement);
   }
 
   /**
@@ -1125,9 +1142,6 @@ export class Service extends cdk.Resource {
   public addSecret(name: string, secret: Secret) {
     if (name.startsWith('AWSAPPRUNNER')) {
       throw new Error(`Environment secret key ${name} with a prefix of AWSAPPRUNNER is not allowed`);
-    }
-    if (!this.instanceRole) {
-      this.instanceRole = this.createInstanceRole();
     }
     secret.grantRead(this.instanceRole);
     this.secrets.push({ name: name, value: secret.arn });

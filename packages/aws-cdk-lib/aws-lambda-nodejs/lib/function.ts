@@ -7,7 +7,6 @@ import { BundlingOptions } from './types';
 import { callsites, findUpMultiple } from './util';
 import { Architecture } from '../../aws-lambda';
 import * as lambda from '../../aws-lambda';
-import { builtInCustomResourceNodeRuntime } from '../../custom-resources';
 
 /**
  * Properties for a NodejsFunction
@@ -37,7 +36,7 @@ export interface NodejsFunctionProps extends lambda.FunctionOptions {
    * The runtime environment. Only runtimes of the Node.js family are
    * supported.
    *
-   * @default Runtime.NODEJS_14_X
+   * @default Runtime.NODEJS_18_X
    */
   readonly runtime?: lambda.Runtime;
 
@@ -102,7 +101,7 @@ export class NodejsFunction extends lambda.Function {
 
     super(scope, id, {
       ...props,
-      runtime: props.runtime ?? builtInCustomResourceNodeRuntime(scope),
+      runtime: props.runtime ?? lambda.Runtime.NODEJS_18_X,
       code: Bundling.bundle({
         ...props.bundling ?? {},
         entry,
