@@ -13,6 +13,7 @@ export class SupportResources extends Construct {
 
   public helloWorld: core.aws_lambda.Function;
   public goodbyeWorld: core.aws_lambda.Function;
+  public invoke: core.aws_lambda.Function;
   public vpc1: ec2.Vpc;
   public vpc2: ec2.Vpc;
 
@@ -33,6 +34,35 @@ export class SupportResources extends Construct {
       maxAzs: 2,
       natGateways: 0,
     });
+
+    // lambda to invoke from;
+
+    this.invoke = new aws_lambda.Function(this, 'InvokeLambda', {
+      runtime: aws_lambda.Runtime.PYTHON_3_10,
+      handler: 'latticeRequest.lambda_handler',
+      code: aws_lambda.Code.fromAsset(path.join(__dirname, '../../lambda/evpc'), {
+        bundling: {
+          image: aws_lambda.Runtime.PYTHON_3_10.bundlingImage,
+          command: [
+            'bash', '-c',
+            'pip install -r requirements.txt -t /asset-output && cp -au . /asset-output',
+          ],
+        },
+      }),
+      timeout: core.Duration.seconds(899),
+      vpc: this.vpc1,
+    });
+
+    // the lambda needs some additonal permissions to attach to the vpc.
+    this.invoke.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      resources: ['*'],
+      actions: [
+        'ec2:CreateNetworkInterface',
+        'ec2:DescribeNetworkInterfaces',
+        'ec2:DeleteNetworkInterface',
+      ],
+    }));
 
     // give the hello lambda a role and permissions
     const helloRole = new iam.Role(this, 'helloRole', {

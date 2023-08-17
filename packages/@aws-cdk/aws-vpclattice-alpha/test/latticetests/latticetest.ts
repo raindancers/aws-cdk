@@ -4,6 +4,10 @@ import {
   aws_iam as iam,
 }
   from 'aws-cdk-lib';
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+import * as vpcLatticeTarget from '@aws-cdk/aws-vpclattice-targets-alpha';
+
 import { Construct } from 'constructs';
 
 import { SupportResources } from './support';
@@ -11,7 +15,6 @@ import {
   ServiceNetwork,
   Service,
   TargetGroup,
-  Target,
   HTTPMethods,
   Listener,
   RuleAccessMode,
@@ -51,9 +54,11 @@ export class LatticeTestStack extends core.Stack {
         {
           targetGroup: new TargetGroup(this, 'lambdatargetsHello', {
             name: 'hellotarget',
-            target: Target.lambda([
-              support.helloWorld,
-            ]),
+            target: new vpcLatticeTarget.Lambda( this, 'lambdaTargetHello', {
+              lambda: [
+                support.helloWorld,
+              ],
+            }),
           }),
         },
       ],
@@ -73,42 +78,24 @@ export class LatticeTestStack extends core.Stack {
         {
           targetGroup: new TargetGroup(this, 'lambdatargetsGoodbye', {
             name: 'goodbyetarget',
-            target: Target.lambda([
-              support.helloWorld,
-            ]),
+            target: new vpcLatticeTarget.Lambda( this, 'lambdaTargetGoodbye', {
+              lambda: [
+                support.goodbyeWorld,
+              ],
+            }),
           }),
         },
       ],
       // the conditions for the match are effectively AND'ed together
       httpMatch: {
-        pathMatches: { path: '/hello' },
+        pathMatches: { path: '/goodbye' },
         method: HTTPMethods.GET,
       },
       accessMode: RuleAccessMode.UNAUTHENTICATED,
 
     });
 
-    myListener.addListenerRule({
-      name: 'rule3',
-      priority: 30,
-      action: [
-        {
-          targetGroup: new TargetGroup(this, 'lambdatargetsGoodbye3', {
-            name: 'goodbyetarget3',
-            target: Target.lambda([
-              support.helloWorld,
-            ]),
-          }),
-        },
-      ],
-      // the conditions for the match are effectively AND'ed together
-      httpMatch: {
-        pathMatches: { path: '/toys' },
-        method: HTTPMethods.GET,
-      },
-      accessMode: RuleAccessMode.NO_STATEMENT,
-
-    });
+    ;
 
     /**
      * Create a ServiceNetwork.
@@ -125,11 +112,6 @@ export class LatticeTestStack extends core.Stack {
         support.vpc2,
       ],
     });
-
-    // eslint-disable-next-line no-console
-    console.log('****ServicePolicy*************');
-    // eslint-disable-next-line no-console
-    console.log(JSON.stringify(myLatticeService.authPolicy));
 
     serviceNetwork.applyAuthPolicyToServiceNetwork();
     myLatticeService.applyAuthPolicy();

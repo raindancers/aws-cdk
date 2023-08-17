@@ -168,7 +168,7 @@ describe('VPC Lattice', () => {
                 ec2instance: [
                   new ec2.Instance(stack, 'Instance1', {
                     instanceType: new ec2.InstanceType('t2.micro'),
-                    machineImage: ec2.MachineImage.latestAmazonLinux2022(),
+                    machineImage: ec2.MachineImage.latestAmazonLinux2023(),
                     vpc: new ec2.Vpc(stack, 'ec2instanceTarget'),
                   }),
                 ],
