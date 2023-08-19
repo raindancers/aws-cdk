@@ -40,7 +40,7 @@ export class SupportResources extends Construct {
     this.invoke = new aws_lambda.Function(this, 'InvokeLambda', {
       runtime: aws_lambda.Runtime.PYTHON_3_10,
       handler: 'latticeRequest.lambda_handler',
-      code: aws_lambda.Code.fromAsset(path.join(__dirname, '../../lambda/evpc'), {
+      code: aws_lambda.Code.fromAsset(path.join(__dirname, './lambda/latticeRequest'), {
         bundling: {
           image: aws_lambda.Runtime.PYTHON_3_10.bundlingImage,
           command: [

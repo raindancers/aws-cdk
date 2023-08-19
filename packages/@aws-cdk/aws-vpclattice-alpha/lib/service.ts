@@ -53,6 +53,10 @@ export interface IService extends core.IResource {
    */
   readonly serviceArn: string;
   /**
+   * URL of the Service
+   */
+  readonly url: string;
+  /**
    * the discovered OrgId
    */
   readonly orgId: string | undefined;
@@ -140,6 +144,10 @@ abstract class ServiceBase extends core.Resource implements IService {
   */
   public abstract readonly serviceId: string;
   /**
+   * URL of the Service
+   */
+  public abstract readonly url: string;
+  /**
    * Imported
    */
   public abstract readonly imported: boolean;
@@ -188,6 +196,10 @@ export class Service extends core.Resource implements IService {
    * The Arn of the Service
    */
   readonly serviceArn: string;
+  /**
+   * URL of the Service
+   */
+  readonly url: string;
   /**
    * the discovered OrgId
    */
@@ -257,6 +269,7 @@ export class Service extends core.Resource implements IService {
       this.associateWithServiceNetwork(props.serviceNetwork);
     };
 
+    this.url = service.attrDnsEntryDomainName;
     this.serviceId = service.attrId;
     this.serviceArn = service.attrArn;
 
@@ -370,10 +383,15 @@ class ImportedService extends ServiceBase {
    * Import
    */
   public readonly imported: boolean = true;
+  /*
+  *
+  */
+  public readonly url: string;
 
   constructor(scope: constructs.Construct, id: string, serviceId: string) {
     super(scope, id);
 
+    this.url = 'thisis bogus,needstobefixed';
     this.serviceId = serviceId;
     this.serviceArn = `arn:${core.Aws.PARTITION}:vpc-lattice:${core.Aws.REGION}:${core.Aws.ACCOUNT_ID}:service/${serviceId}`;
   };

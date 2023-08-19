@@ -1,7 +1,20 @@
 {
-  "version": "32.0.0",
+  "version": "33.0.0",
   "files": {
-    "21fbb51d7b23f6a6c262b46a9caee79d744a3ac019fd45422d988b96d44b2a22": {
+    "67de7cd01ccb44dda7f01ae5feeeed31446dc5bea3e9c0706b3c3698d0a36c95": {
+      "source": {
+        "path": "asset.67de7cd01ccb44dda7f01ae5feeeed31446dc5bea3e9c0706b3c3698d0a36c95.bundle",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "current_account-current_region": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
+          "objectKey": "67de7cd01ccb44dda7f01ae5feeeed31446dc5bea3e9c0706b3c3698d0a36c95.zip",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
+        }
+      }
+    },
+    "3c09db0153bd7440a5d87b4599211602dd748f021359aeebc857da83fe65ebc1": {
       "source": {
         "path": "vpcLatticeTestStackIntegDefaultTestDeployAssertB4F53850.template.json",
         "packaging": "file"
@@ -9,7 +22,7 @@
       "destinations": {
         "current_account-current_region": {
           "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
-          "objectKey": "21fbb51d7b23f6a6c262b46a9caee79d744a3ac019fd45422d988b96d44b2a22.json",
+          "objectKey": "3c09db0153bd7440a5d87b4599211602dd748f021359aeebc857da83fe65ebc1.json",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
         }
       }

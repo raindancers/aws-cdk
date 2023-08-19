@@ -1,5 +1,5 @@
 {
-  "version": "32.0.0",
+  "version": "33.0.0",
   "artifacts": {
     "ServiceNetwork.assets": {
       "type": "cdk:asset-manifest",
@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/4aa42d515514862e9bb2ab4ba17f2b4867524cc3f41f24722f5a51557313ace4.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/942a75a492c3b589a857a117fbcc4989f57afc4d785eaa516871c06b2d050757.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -249,6 +249,30 @@
             "data": "supportresourcesVPC2RestrictDefaultSecurityGroupCustomResource9177A5C5"
           }
         ],
+        "/ServiceNetwork/supportresources/InvokeLambda/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesInvokeLambdaServiceRole2C95216B"
+          }
+        ],
+        "/ServiceNetwork/supportresources/InvokeLambda/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesInvokeLambdaServiceRoleDefaultPolicy4260FD36"
+          }
+        ],
+        "/ServiceNetwork/supportresources/InvokeLambda/SecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesInvokeLambdaSecurityGroupACABB69E"
+          }
+        ],
+        "/ServiceNetwork/supportresources/InvokeLambda/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesInvokeLambdaC7072BDD"
+          }
+        ],
         "/ServiceNetwork/supportresources/helloRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -325,12 +349,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "myLatticeServiceServiceAuthPolicy11FE73CA"
-          }
-        ],
-        "/ServiceNetwork/DefaultCrNodeVersionMap": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "DefaultCrNodeVersionMap"
           }
         ],
         "/ServiceNetwork/AWS679f53fac002430cb0da5b7982bd2287/ServiceRole/Resource": [
@@ -417,6 +435,18 @@
             "data": "LatticeServiceNetworkAuthPolicy2788B62F"
           }
         ],
+        "/ServiceNetwork/Exports/Output{\"Ref\":\"supportresourcesInvokeLambdaC7072BDD\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefsupportresourcesInvokeLambdaC7072BDDF6326163"
+          }
+        ],
+        "/ServiceNetwork/Exports/Output{\"Fn::GetAtt\":[\"myLatticeServiceB48AE2A4\",\"DnsEntry.DomainName\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttmyLatticeServiceB48AE2A4DnsEntryDomainName2C028232"
+          }
+        ],
         "/ServiceNetwork/BootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",
@@ -448,7 +478,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/21fbb51d7b23f6a6c262b46a9caee79d744a3ac019fd45422d988b96d44b2a22.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/3c09db0153bd7440a5d87b4599211602dd748f021359aeebc857da83fe65ebc1.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -461,9 +491,40 @@
         }
       },
       "dependencies": [
+        "ServiceNetwork",
         "vpcLatticeTestStackIntegDefaultTestDeployAssertB4F53850.assets"
       ],
       "metadata": {
+        "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6/Default/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6"
+          }
+        ],
+        "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6/Invoke": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6InvokeDD0E9D79"
+          }
+        ],
+        "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6/AssertionResults": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AssertionResultsLambdaInvoke0cfa981be58beb39b48cc02c660c4ae6"
+          }
+        ],
+        "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/SingletonFunction1488541a7b23466481b69b4408076b81/Role": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SingletonFunction1488541a7b23466481b69b4408076b81Role37ABCE73"
+          }
+        ],
+        "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/SingletonFunction1488541a7b23466481b69b4408076b81/Handler": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SingletonFunction1488541a7b23466481b69b4408076b81HandlerCD40AE9F"
+          }
+        ],
         "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/BootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",

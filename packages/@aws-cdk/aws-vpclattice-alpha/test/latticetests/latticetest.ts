@@ -2,6 +2,7 @@ import * as core from 'aws-cdk-lib';
 
 import {
   aws_iam as iam,
+  aws_lambda,
 }
   from 'aws-cdk-lib';
 
@@ -24,15 +25,22 @@ import {
 
 export class LatticeTestStack extends core.Stack {
 
+  invoke: aws_lambda.Function
+  serviceURL: string
+
   constructor(scope: Construct, id: string, props?: core.StackProps) {
     super(scope, id, props);
 
     const support = new SupportResources(this, 'supportresources');
 
+    this.invoke = support.invoke;
+
     // Create a Lattice Service
     // this will default to using IAM Authentication
     const myLatticeService = new Service(this, 'myLatticeService', {
     });
+
+    this.serviceURL = myLatticeService.url;
 
     myLatticeService.node.addDependency(support.vpc1);
     myLatticeService.node.addDependency(support.vpc2);
@@ -67,7 +75,10 @@ export class LatticeTestStack extends core.Stack {
         pathMatches: { path: '/hello' },
         method: HTTPMethods.GET,
       },
-      allowedPrincipals: [new iam.AnyPrincipal()],
+      allowedPrincipals: [
+        new iam.AnyPrincipal(),
+        support.invoke.role as iam.Role,
+      ],
       accessMode: RuleAccessMode.AUTHENTICATED_ONLY,
     });
 
@@ -94,8 +105,6 @@ export class LatticeTestStack extends core.Stack {
       accessMode: RuleAccessMode.UNAUTHENTICATED,
 
     });
-
-    ;
 
     /**
      * Create a ServiceNetwork.
