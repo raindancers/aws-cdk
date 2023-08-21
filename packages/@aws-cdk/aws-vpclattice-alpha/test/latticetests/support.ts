@@ -4,6 +4,7 @@ import * as core from 'aws-cdk-lib';
 import {
   aws_iam as iam,
   aws_ec2 as ec2,
+  aws_logs as logs,
   aws_lambda,
 }
   from 'aws-cdk-lib';
@@ -11,9 +12,10 @@ import { Construct } from 'constructs';
 
 export class SupportResources extends Construct {
 
-  public helloWorld: core.aws_lambda.Function;
-  public goodbyeWorld: core.aws_lambda.Function;
+  public lambdaTarget: core.aws_lambda.Function;
+  public target2: core.aws_lambda.Function;
   public invoke: core.aws_lambda.Function;
+
   public vpc1: ec2.Vpc;
   public vpc2: ec2.Vpc;
 
@@ -40,6 +42,7 @@ export class SupportResources extends Construct {
     this.invoke = new aws_lambda.Function(this, 'InvokeLambda', {
       runtime: aws_lambda.Runtime.PYTHON_3_10,
       handler: 'latticeRequest.lambda_handler',
+      logRetention: core.aws_logs.RetentionDays.FIVE_DAYS,
       code: aws_lambda.Code.fromAsset(path.join(__dirname, './lambda/latticeRequest'), {
         bundling: {
           image: aws_lambda.Runtime.PYTHON_3_10.bundlingImage,
@@ -65,51 +68,27 @@ export class SupportResources extends Construct {
     }));
 
     // give the hello lambda a role and permissions
-    const helloRole = new iam.Role(this, 'helloRole', {
+    const lambdaRole = new iam.Role(this, 'helloRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
     });
-
-    helloRole.addToPolicy(new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      resources: ['*'],
-      actions: [
-        'ec2:CreateNetworkInterface',
-        'ec2:DescribeNetworkInterfaces',
-        'ec2:DeleteNetworkInterface',
-      ],
-    }));
-
-    // give the goodbye lambda a role and permissions
-    const goodbyeRole = new iam.Role(this, 'checkRole', {
-      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
-    });
-
-    goodbyeRole.addToPolicy(new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      resources: ['*'],
-      actions: [
-        'ec2:CreateNetworkInterface',
-        'ec2:DescribeNetworkInterfaces',
-        'ec2:DeleteNetworkInterface',
-      ],
-    })),
 
     // create the hello world lambda
-    this.helloWorld = new aws_lambda.Function(this, 'Helloworld', {
+    this.lambdaTarget = new aws_lambda.Function(this, 'Helloworld', {
       runtime: aws_lambda.Runtime.PYTHON_3_10,
       handler: 'helloworld.lambda_handler',
       code: aws_lambda.Code.fromAsset(path.join(__dirname, './lambda' )),
       timeout: core.Duration.seconds(15),
-      role: helloRole,
+      role: lambdaRole,
+      logRetention: logs.RetentionDays.FIVE_DAYS,
     });
 
-    // create the goodbye world lambda
-    this.goodbyeWorld = new aws_lambda.Function(this, 'Goodbye', {
+    this.target2 = new aws_lambda.Function(this, 'placeholder', {
       runtime: aws_lambda.Runtime.PYTHON_3_10,
-      handler: 'goodbyeworld.lambda_handler',
+      handler: 'helloworld.lambda_handler',
       code: aws_lambda.Code.fromAsset(path.join(__dirname, './lambda' )),
       timeout: core.Duration.seconds(15),
-      role: goodbyeRole,
+      role: lambdaRole,
+      logRetention: logs.RetentionDays.FIVE_DAYS,
     });
 
   }

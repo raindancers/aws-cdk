@@ -7,15 +7,35 @@ const stack = new LatticeTestStack(app, 'ServiceNetwork', {});
 
 const tests = new integ.IntegTest(app, 'vpcLatticeTestStackInteg', {
   testCases: [stack],
+  cdkCommandOptions: {
+    destroy: {
+      enabled: false,
+    },
+  },
 });
 
-const invoke = tests.assertions.invokeFunction({
+// the invoke lambda is permitted to access this path
+const test1 = tests.assertions.invokeFunction({
   functionName: stack.invoke.functionName,
-  payload: JSON.stringify({ url: stack.serviceURL }),
+  payload: JSON.stringify({ url: `https://${stack.serviceURL}/test1` }),
 });
 
-invoke.expect(integ.ExpectedResult.objectLike({
-  StatusCode: 200,
+test1.expect(integ.ExpectedResult.objectLike({
+  Payload: {
+    StatusCode: 200,
+  },
+}));
+
+// the invoke lambda is not permitted to this path, so shoudl return 403
+const test2 = tests.assertions.invokeFunction({
+  functionName: stack.invoke.functionName,
+  payload: JSON.stringify({ url: `https://${stack.serviceURL}/test2` }),
+});
+
+test2.expect(integ.ExpectedResult.objectLike({
+  Payload: {
+    StatusCode: 403,
+  },
 }));
 
 app.synth();

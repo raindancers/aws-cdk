@@ -16,7 +16,6 @@ import {
   ServiceNetwork,
   Service,
   TargetGroup,
-  HTTPMethods,
   Listener,
   RuleAccessMode,
   ServiceNetworkAccessMode,
@@ -55,16 +54,17 @@ export class LatticeTestStack extends core.Stack {
       service: myLatticeService,
     });
 
+    // the invoker lambda is permitted to access this.
     myListener.addListenerRule({
       name: 'rule1',
       priority: 10,
       action: [
         {
-          targetGroup: new TargetGroup(this, 'lambdatargetsHello', {
-            name: 'hellotarget',
-            target: new vpcLatticeTarget.Lambda( this, 'lambdaTargetHello', {
+          targetGroup: new TargetGroup(this, 'test1', {
+            name: 'test1',
+            target: new vpcLatticeTarget.Lambda( this, 'testtarget', {
               lambda: [
-                support.helloWorld,
+                support.lambdaTarget,
               ],
             }),
           }),
@@ -72,26 +72,25 @@ export class LatticeTestStack extends core.Stack {
       ],
       // the conditions for the match are effectively AND'ed together
       httpMatch: {
-        pathMatches: { path: '/hello' },
-        method: HTTPMethods.GET,
+        pathMatches: { path: '/test1' },
       },
       allowedPrincipals: [
-        new iam.AnyPrincipal(),
         support.invoke.role as iam.Role,
       ],
       accessMode: RuleAccessMode.AUTHENTICATED_ONLY,
     });
 
+    // the invoker lambda is not permittd to access this, and when called shoudl get a 403
     myListener.addListenerRule({
       name: 'rule2',
       priority: 20,
       action: [
         {
-          targetGroup: new TargetGroup(this, 'lambdatargetsGoodbye', {
-            name: 'goodbyetarget',
-            target: new vpcLatticeTarget.Lambda( this, 'lambdaTargetGoodbye', {
+          targetGroup: new TargetGroup(this, 'test2', {
+            name: 'test2',
+            target: new vpcLatticeTarget.Lambda( this, 'test2target', {
               lambda: [
-                support.goodbyeWorld,
+                support.target2,
               ],
             }),
           }),
@@ -99,11 +98,14 @@ export class LatticeTestStack extends core.Stack {
       ],
       // the conditions for the match are effectively AND'ed together
       httpMatch: {
-        pathMatches: { path: '/goodbye' },
-        method: HTTPMethods.GET,
+        pathMatches: { path: '/test2' },
       },
-      accessMode: RuleAccessMode.UNAUTHENTICATED,
-
+      allowedPrincipals: [
+        new iam.Role(this, 'arole', {
+          assumedBy: new iam.AnyPrincipal(),
+        }),
+      ],
+      accessMode: RuleAccessMode.AUTHENTICATED_ONLY,
     });
 
     /**

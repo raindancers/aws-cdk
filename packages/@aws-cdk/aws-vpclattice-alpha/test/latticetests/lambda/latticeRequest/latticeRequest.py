@@ -7,24 +7,22 @@ import os
 import logging
 
 
-def lambda_handler(event, context):
+def lambda_handler(payload, context):
 
-    payload = event
+    print(payload)
 
 
-    log = logging.getLogger("handler")
-    log.setLevel(logging.INFO)
+    data = "some data that is not important"
 
     # https://docs.aws.amazon.com/vpc-lattice/latest/ug/sigv4-authenticated-requests.html#sigv4-authenticated-requests-python0
 
     session = botocore.session.Session()
     region = os.environ.get('AWS_REGION')
 
-
     request = AWSRequest(
         method='POST',
         url=payload["url"],
-        data= "data-that-is-not-important",
+        data= data,
         headers= {'Content-Type': 'application/json'},
     )
     request.context["payload_signing_enabled"] = False # payload signing is not supported
@@ -38,23 +36,18 @@ def lambda_handler(event, context):
     try:
         response = requests.post(prepped.url, headers=prepped.headers, data=data)
     except Exception as e:
-        log.error("Request Failed")
-        log.info(e)
-        
+        print('reponse Failed:', e)
+
         return {
             "statusCode": 500,
             "statusDescription": "Lambda could ",
             "body": "Server error - check lambda logs\n"
         }
     
-    log.info(response.text)
+    print(response)
 
-    # this returns the code from the lattice response. In some respects
-    # this lambda is proxying the request from the integ-tests
     return {
-        "statusCode": 200,
-        "statusDescription": "200 OK",
-        "body": f"{response.status_code}",
+        "StatusCode": response.status_code,
     }
 
     
