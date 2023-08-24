@@ -530,6 +530,254 @@
                       "fqn": "aws-cdk-lib.CustomResource",
                       "version": "0.0.0"
                     }
+                  },
+                  "ssm": {
+                    "id": "ssm",
+                    "path": "ServiceNetwork/supportresources/VPC1/ssm",
+                    "children": {
+                      "SecurityGroup": {
+                        "id": "SecurityGroup",
+                        "path": "ServiceNetwork/supportresources/VPC1/ssm/SecurityGroup",
+                        "children": {
+                          "Resource": {
+                            "id": "Resource",
+                            "path": "ServiceNetwork/supportresources/VPC1/ssm/SecurityGroup/Resource",
+                            "attributes": {
+                              "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
+                              "aws:cdk:cloudformation:props": {
+                                "groupDescription": "ServiceNetwork/supportresources/VPC1/ssm/SecurityGroup",
+                                "securityGroupEgress": [
+                                  {
+                                    "cidrIp": "0.0.0.0/0",
+                                    "description": "Allow all outbound traffic by default",
+                                    "ipProtocol": "-1"
+                                  }
+                                ],
+                                "securityGroupIngress": [
+                                  {
+                                    "cidrIp": {
+                                      "Fn::GetAtt": [
+                                        "supportresourcesVPC18839F4CE",
+                                        "CidrBlock"
+                                      ]
+                                    },
+                                    "ipProtocol": "tcp",
+                                    "fromPort": 443,
+                                    "toPort": 443,
+                                    "description": {
+                                      "Fn::Join": [
+                                        "",
+                                        [
+                                          "from ",
+                                          {
+                                            "Fn::GetAtt": [
+                                              "supportresourcesVPC18839F4CE",
+                                              "CidrBlock"
+                                            ]
+                                          },
+                                          ":443"
+                                        ]
+                                      ]
+                                    }
+                                  }
+                                ],
+                                "tags": [
+                                  {
+                                    "key": "Name",
+                                    "value": "ServiceNetwork/supportresources/VPC1"
+                                  }
+                                ],
+                                "vpcId": {
+                                  "Ref": "supportresourcesVPC18839F4CE"
+                                }
+                              }
+                            },
+                            "constructInfo": {
+                              "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroup",
+                              "version": "0.0.0"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                          "version": "0.0.0"
+                        }
+                      },
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "ServiceNetwork/supportresources/VPC1/ssm/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::EC2::VPCEndpoint",
+                          "aws:cdk:cloudformation:props": {
+                            "privateDnsEnabled": true,
+                            "securityGroupIds": [
+                              {
+                                "Fn::GetAtt": [
+                                  "supportresourcesVPC1ssmSecurityGroup08612182",
+                                  "GroupId"
+                                ]
+                              }
+                            ],
+                            "serviceName": {
+                              "Fn::Join": [
+                                "",
+                                [
+                                  "com.amazonaws.",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  ".ssm"
+                                ]
+                              ]
+                            },
+                            "subnetIds": [
+                              {
+                                "Ref": "supportresourcesVPC1IsolatedSubnet1Subnet5EBC89AB"
+                              },
+                              {
+                                "Ref": "supportresourcesVPC1IsolatedSubnet2Subnet9810FE1A"
+                              }
+                            ],
+                            "vpcEndpointType": "Interface",
+                            "vpcId": {
+                              "Ref": "supportresourcesVPC18839F4CE"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_ec2.CfnVPCEndpoint",
+                          "version": "0.0.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.InterfaceVpcEndpoint",
+                      "version": "0.0.0"
+                    }
+                  },
+                  "ssm_messages": {
+                    "id": "ssm_messages",
+                    "path": "ServiceNetwork/supportresources/VPC1/ssm_messages",
+                    "children": {
+                      "SecurityGroup": {
+                        "id": "SecurityGroup",
+                        "path": "ServiceNetwork/supportresources/VPC1/ssm_messages/SecurityGroup",
+                        "children": {
+                          "Resource": {
+                            "id": "Resource",
+                            "path": "ServiceNetwork/supportresources/VPC1/ssm_messages/SecurityGroup/Resource",
+                            "attributes": {
+                              "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
+                              "aws:cdk:cloudformation:props": {
+                                "groupDescription": "ServiceNetwork/supportresources/VPC1/ssm_messages/SecurityGroup",
+                                "securityGroupEgress": [
+                                  {
+                                    "cidrIp": "0.0.0.0/0",
+                                    "description": "Allow all outbound traffic by default",
+                                    "ipProtocol": "-1"
+                                  }
+                                ],
+                                "securityGroupIngress": [
+                                  {
+                                    "cidrIp": {
+                                      "Fn::GetAtt": [
+                                        "supportresourcesVPC18839F4CE",
+                                        "CidrBlock"
+                                      ]
+                                    },
+                                    "ipProtocol": "tcp",
+                                    "fromPort": 443,
+                                    "toPort": 443,
+                                    "description": {
+                                      "Fn::Join": [
+                                        "",
+                                        [
+                                          "from ",
+                                          {
+                                            "Fn::GetAtt": [
+                                              "supportresourcesVPC18839F4CE",
+                                              "CidrBlock"
+                                            ]
+                                          },
+                                          ":443"
+                                        ]
+                                      ]
+                                    }
+                                  }
+                                ],
+                                "tags": [
+                                  {
+                                    "key": "Name",
+                                    "value": "ServiceNetwork/supportresources/VPC1"
+                                  }
+                                ],
+                                "vpcId": {
+                                  "Ref": "supportresourcesVPC18839F4CE"
+                                }
+                              }
+                            },
+                            "constructInfo": {
+                              "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroup",
+                              "version": "0.0.0"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                          "version": "0.0.0"
+                        }
+                      },
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "ServiceNetwork/supportresources/VPC1/ssm_messages/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::EC2::VPCEndpoint",
+                          "aws:cdk:cloudformation:props": {
+                            "privateDnsEnabled": true,
+                            "securityGroupIds": [
+                              {
+                                "Fn::GetAtt": [
+                                  "supportresourcesVPC1ssmmessagesSecurityGroup662004AF",
+                                  "GroupId"
+                                ]
+                              }
+                            ],
+                            "serviceName": {
+                              "Fn::Join": [
+                                "",
+                                [
+                                  "com.amazonaws.",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  ".ssmmessages"
+                                ]
+                              ]
+                            },
+                            "subnetIds": [
+                              {
+                                "Ref": "supportresourcesVPC1IsolatedSubnet1Subnet5EBC89AB"
+                              },
+                              {
+                                "Ref": "supportresourcesVPC1IsolatedSubnet2Subnet9810FE1A"
+                              }
+                            ],
+                            "vpcEndpointType": "Interface",
+                            "vpcId": {
+                              "Ref": "supportresourcesVPC18839F4CE"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_ec2.CfnVPCEndpoint",
+                          "version": "0.0.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.InterfaceVpcEndpoint",
+                      "version": "0.0.0"
+                    }
                   }
                 },
                 "constructInfo": {
@@ -1145,7 +1393,8 @@
                                       "Action": [
                                         "ec2:CreateNetworkInterface",
                                         "ec2:DeleteNetworkInterface",
-                                        "ec2:DescribeNetworkInterfaces"
+                                        "ec2:DescribeNetworkInterfaces",
+                                        "vpc-lattice-svcs:Invoke"
                                       ],
                                       "Effect": "Allow",
                                       "Resource": "*"
@@ -1248,7 +1497,7 @@
                           "s3Bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "s3Key": "8297cc301c4e92222adb2433a60311d63846a0b26db29a0c69a99cf8b048cc8a.zip"
+                          "s3Key": "9d632310da15657e3e39d9a950b690f7b65c0387aa50caf736840cbd7a45af50.zip"
                         },
                         "handler": "latticeRequest.lambda_handler",
                         "role": {
@@ -1281,6 +1530,32 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+                      "version": "0.0.0"
+                    }
+                  },
+                  "LogRetention": {
+                    "id": "LogRetention",
+                    "path": "ServiceNetwork/supportresources/InvokeLambda/LogRetention",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "ServiceNetwork/supportresources/InvokeLambda/LogRetention/Resource",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnResource",
+                          "version": "0.0.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.LogRetention",
+                      "version": "0.0.0"
+                    }
+                  },
+                  "LogGroup": {
+                    "id": "LogGroup",
+                    "path": "ServiceNetwork/supportresources/InvokeLambda/LogGroup",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
                       "version": "0.0.0"
                     }
                   }
@@ -1326,35 +1601,88 @@
                       "fqn": "aws-cdk-lib.aws_iam.CfnRole",
                       "version": "0.0.0"
                     }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "0.0.0"
+                }
+              },
+              "consumerRole": {
+                "id": "consumerRole",
+                "path": "ServiceNetwork/supportresources/consumerRole",
+                "children": {
+                  "ImportconsumerRole": {
+                    "id": "ImportconsumerRole",
+                    "path": "ServiceNetwork/supportresources/consumerRole/ImportconsumerRole",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "0.0.0"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "ServiceNetwork/supportresources/consumerRole/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": "ec2.amazonaws.com"
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "0.0.0"
+                    }
                   },
                   "DefaultPolicy": {
                     "id": "DefaultPolicy",
-                    "path": "ServiceNetwork/supportresources/helloRole/DefaultPolicy",
+                    "path": "ServiceNetwork/supportresources/consumerRole/DefaultPolicy",
                     "children": {
                       "Resource": {
                         "id": "Resource",
-                        "path": "ServiceNetwork/supportresources/helloRole/DefaultPolicy/Resource",
+                        "path": "ServiceNetwork/supportresources/consumerRole/DefaultPolicy/Resource",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
                           "aws:cdk:cloudformation:props": {
                             "policyDocument": {
                               "Statement": [
                                 {
-                                  "Action": [
-                                    "ec2:CreateNetworkInterface",
-                                    "ec2:DeleteNetworkInterface",
-                                    "ec2:DescribeNetworkInterfaces"
-                                  ],
+                                  "Action": "vpc-lattice-svcs:Invoke",
                                   "Effect": "Allow",
                                   "Resource": "*"
                                 }
                               ],
                               "Version": "2012-10-17"
                             },
-                            "policyName": "supportresourceshelloRoleDefaultPolicyE0D968C9",
+                            "policyName": "supportresourcesconsumerRoleDefaultPolicy39A011A3",
                             "roles": [
                               {
-                                "Ref": "supportresourceshelloRole5ADF3862"
+                                "Ref": "supportresourcesconsumerRole717A0D72"
                               }
                             ]
                           }
@@ -1376,89 +1704,147 @@
                   "version": "0.0.0"
                 }
               },
-              "checkRole": {
-                "id": "checkRole",
-                "path": "ServiceNetwork/supportresources/checkRole",
+              "demoEC2instance": {
+                "id": "demoEC2instance",
+                "path": "ServiceNetwork/supportresources/demoEC2instance",
                 "children": {
-                  "ImportcheckRole": {
-                    "id": "ImportcheckRole",
-                    "path": "ServiceNetwork/supportresources/checkRole/ImportcheckRole",
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.Resource",
-                      "version": "0.0.0"
-                    }
-                  },
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "ServiceNetwork/supportresources/checkRole/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
-                      "aws:cdk:cloudformation:props": {
-                        "assumeRolePolicyDocument": {
-                          "Statement": [
-                            {
-                              "Action": "sts:AssumeRole",
-                              "Effect": "Allow",
-                              "Principal": {
-                                "Service": "lambda.amazonaws.com"
-                              }
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
-                      "version": "0.0.0"
-                    }
-                  },
-                  "DefaultPolicy": {
-                    "id": "DefaultPolicy",
-                    "path": "ServiceNetwork/supportresources/checkRole/DefaultPolicy",
+                  "InstanceSecurityGroup": {
+                    "id": "InstanceSecurityGroup",
+                    "path": "ServiceNetwork/supportresources/demoEC2instance/InstanceSecurityGroup",
                     "children": {
                       "Resource": {
                         "id": "Resource",
-                        "path": "ServiceNetwork/supportresources/checkRole/DefaultPolicy/Resource",
+                        "path": "ServiceNetwork/supportresources/demoEC2instance/InstanceSecurityGroup/Resource",
                         "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                          "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
                           "aws:cdk:cloudformation:props": {
-                            "policyDocument": {
-                              "Statement": [
-                                {
-                                  "Action": [
-                                    "ec2:CreateNetworkInterface",
-                                    "ec2:DeleteNetworkInterface",
-                                    "ec2:DescribeNetworkInterfaces"
-                                  ],
-                                  "Effect": "Allow",
-                                  "Resource": "*"
-                                }
-                              ],
-                              "Version": "2012-10-17"
-                            },
-                            "policyName": "supportresourcescheckRoleDefaultPolicy5FCF6FFE",
-                            "roles": [
+                            "groupDescription": "ServiceNetwork/supportresources/demoEC2instance/InstanceSecurityGroup",
+                            "securityGroupEgress": [
                               {
-                                "Ref": "supportresourcescheckRoleEC7B26D5"
+                                "cidrIp": "0.0.0.0/0",
+                                "description": "Allow all outbound traffic by default",
+                                "ipProtocol": "-1"
                               }
-                            ]
+                            ],
+                            "tags": [
+                              {
+                                "key": "Name",
+                                "value": "ServiceNetwork/supportresources/demoEC2instance"
+                              }
+                            ],
+                            "vpcId": {
+                              "Ref": "supportresourcesVPC18839F4CE"
+                            }
                           }
                         },
                         "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                          "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroup",
                           "version": "0.0.0"
                         }
                       }
                     },
                     "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.Policy",
+                      "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                      "version": "0.0.0"
+                    }
+                  },
+                  "InstanceProfile": {
+                    "id": "InstanceProfile",
+                    "path": "ServiceNetwork/supportresources/demoEC2instance/InstanceProfile",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::InstanceProfile",
+                      "aws:cdk:cloudformation:props": {
+                        "roles": [
+                          {
+                            "Ref": "supportresourcesconsumerRole717A0D72"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnInstanceProfile",
+                      "version": "0.0.0"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "ServiceNetwork/supportresources/demoEC2instance/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::Instance",
+                      "aws:cdk:cloudformation:props": {
+                        "availabilityZone": {
+                          "Fn::Select": [
+                            0,
+                            {
+                              "Fn::GetAZs": ""
+                            }
+                          ]
+                        },
+                        "iamInstanceProfile": {
+                          "Ref": "supportresourcesdemoEC2instanceInstanceProfile63F2FAAB"
+                        },
+                        "imageId": {
+                          "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter"
+                        },
+                        "instanceType": "t2.micro",
+                        "launchTemplate": {
+                          "launchTemplateName": "ServiceNetworksupportresourcesdemoEC2instanceLaunchTemplate745583DA",
+                          "version": {
+                            "Fn::GetAtt": [
+                              "supportresourcesdemoEC2instanceLaunchTemplateDBD43F05",
+                              "LatestVersionNumber"
+                            ]
+                          }
+                        },
+                        "securityGroupIds": [
+                          {
+                            "Fn::GetAtt": [
+                              "supportresourcesdemoEC2instanceInstanceSecurityGroup04B01E8C",
+                              "GroupId"
+                            ]
+                          }
+                        ],
+                        "subnetId": {
+                          "Ref": "supportresourcesVPC1IsolatedSubnet1Subnet5EBC89AB"
+                        },
+                        "tags": [
+                          {
+                            "key": "Name",
+                            "value": "ServiceNetwork/supportresources/demoEC2instance"
+                          }
+                        ],
+                        "userData": {
+                          "Fn::Base64": "#!/bin/bash"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnInstance",
+                      "version": "0.0.0"
+                    }
+                  },
+                  "LaunchTemplate": {
+                    "id": "LaunchTemplate",
+                    "path": "ServiceNetwork/supportresources/demoEC2instance/LaunchTemplate",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::LaunchTemplate",
+                      "aws:cdk:cloudformation:props": {
+                        "launchTemplateData": {
+                          "metadataOptions": {
+                            "httpTokens": "required"
+                          }
+                        },
+                        "launchTemplateName": "ServiceNetworksupportresourcesdemoEC2instanceLaunchTemplate745583DA"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnLaunchTemplate",
                       "version": "0.0.0"
                     }
                   }
                 },
                 "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "fqn": "aws-cdk-lib.aws_ec2.Instance",
                   "version": "0.0.0"
                 }
               },
@@ -1502,7 +1888,7 @@
                           "s3Bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "s3Key": "8dc28efba9f2aa0b4edc3e31db39276a43c331b6a073c5a7f5e51728ba0b2971.zip"
+                          "s3Key": "c0015f8de21bd05ca5bed8209d7cd0787207c9041554a3dc1a0c7dace6893777.zip"
                         },
                         "handler": "helloworld.lambda_handler",
                         "role": {
@@ -1519,6 +1905,32 @@
                       "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
                       "version": "0.0.0"
                     }
+                  },
+                  "LogRetention": {
+                    "id": "LogRetention",
+                    "path": "ServiceNetwork/supportresources/Helloworld/LogRetention",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "ServiceNetwork/supportresources/Helloworld/LogRetention/Resource",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnResource",
+                          "version": "0.0.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.LogRetention",
+                      "version": "0.0.0"
+                    }
+                  },
+                  "LogGroup": {
+                    "id": "LogGroup",
+                    "path": "ServiceNetwork/supportresources/Helloworld/LogGroup",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "0.0.0"
+                    }
                   }
                 },
                 "constructInfo": {
@@ -1526,17 +1938,17 @@
                   "version": "0.0.0"
                 }
               },
-              "Goodbye": {
-                "id": "Goodbye",
-                "path": "ServiceNetwork/supportresources/Goodbye",
+              "placeholder": {
+                "id": "placeholder",
+                "path": "ServiceNetwork/supportresources/placeholder",
                 "children": {
                   "Code": {
                     "id": "Code",
-                    "path": "ServiceNetwork/supportresources/Goodbye/Code",
+                    "path": "ServiceNetwork/supportresources/placeholder/Code",
                     "children": {
                       "Stage": {
                         "id": "Stage",
-                        "path": "ServiceNetwork/supportresources/Goodbye/Code/Stage",
+                        "path": "ServiceNetwork/supportresources/placeholder/Code/Stage",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.AssetStaging",
                           "version": "0.0.0"
@@ -1544,7 +1956,7 @@
                       },
                       "AssetBucket": {
                         "id": "AssetBucket",
-                        "path": "ServiceNetwork/supportresources/Goodbye/Code/AssetBucket",
+                        "path": "ServiceNetwork/supportresources/placeholder/Code/AssetBucket",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.aws_s3.BucketBase",
                           "version": "0.0.0"
@@ -1558,7 +1970,7 @@
                   },
                   "Resource": {
                     "id": "Resource",
-                    "path": "ServiceNetwork/supportresources/Goodbye/Resource",
+                    "path": "ServiceNetwork/supportresources/placeholder/Resource",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::Lambda::Function",
                       "aws:cdk:cloudformation:props": {
@@ -1566,12 +1978,12 @@
                           "s3Bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "s3Key": "8dc28efba9f2aa0b4edc3e31db39276a43c331b6a073c5a7f5e51728ba0b2971.zip"
+                          "s3Key": "c0015f8de21bd05ca5bed8209d7cd0787207c9041554a3dc1a0c7dace6893777.zip"
                         },
-                        "handler": "goodbyeworld.lambda_handler",
+                        "handler": "goodbye.lambda_handler",
                         "role": {
                           "Fn::GetAtt": [
-                            "supportresourcescheckRoleEC7B26D5",
+                            "supportresourceshelloRole5ADF3862",
                             "Arn"
                           ]
                         },
@@ -1581,6 +1993,32 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+                      "version": "0.0.0"
+                    }
+                  },
+                  "LogRetention": {
+                    "id": "LogRetention",
+                    "path": "ServiceNetwork/supportresources/placeholder/LogRetention",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "ServiceNetwork/supportresources/placeholder/LogRetention/Resource",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnResource",
+                          "version": "0.0.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.LogRetention",
+                      "version": "0.0.0"
+                    }
+                  },
+                  "LogGroup": {
+                    "id": "LogGroup",
+                    "path": "ServiceNetwork/supportresources/placeholder/LogGroup",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
                       "version": "0.0.0"
                     }
                   }
@@ -1627,6 +2065,165 @@
             },
             "constructInfo": {
               "fqn": "aws-cdk-lib.CustomResourceProvider",
+              "version": "0.0.0"
+            }
+          },
+          "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a": {
+            "id": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a",
+            "path": "ServiceNetwork/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a",
+            "children": {
+              "Code": {
+                "id": "Code",
+                "path": "ServiceNetwork/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Code",
+                "children": {
+                  "Stage": {
+                    "id": "Stage",
+                    "path": "ServiceNetwork/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Code/Stage",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.AssetStaging",
+                      "version": "0.0.0"
+                    }
+                  },
+                  "AssetBucket": {
+                    "id": "AssetBucket",
+                    "path": "ServiceNetwork/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Code/AssetBucket",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_s3.BucketBase",
+                      "version": "0.0.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
+                  "version": "0.0.0"
+                }
+              },
+              "ServiceRole": {
+                "id": "ServiceRole",
+                "path": "ServiceNetwork/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole",
+                "children": {
+                  "ImportServiceRole": {
+                    "id": "ImportServiceRole",
+                    "path": "ServiceNetwork/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/ImportServiceRole",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "0.0.0"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "ServiceNetwork/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "0.0.0"
+                    }
+                  },
+                  "DefaultPolicy": {
+                    "id": "DefaultPolicy",
+                    "path": "ServiceNetwork/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "ServiceNetwork/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                          "aws:cdk:cloudformation:props": {
+                            "policyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": [
+                                    "logs:DeleteRetentionPolicy",
+                                    "logs:PutRetentionPolicy"
+                                  ],
+                                  "Effect": "Allow",
+                                  "Resource": "*"
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            },
+                            "policyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+                            "roles": [
+                              {
+                                "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                          "version": "0.0.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Policy",
+                      "version": "0.0.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "0.0.0"
+                }
+              },
+              "Resource": {
+                "id": "Resource",
+                "path": "ServiceNetwork/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnResource",
+                  "version": "0.0.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.2.69"
+            }
+          },
+          "SsmParameterValue:--aws--service--ami-amazon-linux-latest--al2023-ami-kernel-6.1-x86_64:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
+            "id": "SsmParameterValue:--aws--service--ami-amazon-linux-latest--al2023-ami-kernel-6.1-x86_64:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "path": "ServiceNetwork/SsmParameterValue:--aws--service--ami-amazon-linux-latest--al2023-ami-kernel-6.1-x86_64:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnParameter",
+              "version": "0.0.0"
+            }
+          },
+          "SsmParameterValue:--aws--service--ami-amazon-linux-latest--al2023-ami-kernel-6.1-x86_64:C96584B6-F00A-464E-AD19-53AFF4B05118": {
+            "id": "SsmParameterValue:--aws--service--ami-amazon-linux-latest--al2023-ami-kernel-6.1-x86_64:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "path": "ServiceNetwork/SsmParameterValue:--aws--service--ami-amazon-linux-latest--al2023-ami-kernel-6.1-x86_64:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.Resource",
               "version": "0.0.0"
             }
           },
@@ -1736,18 +2333,20 @@
                           "Condition": {
                             "StringNotEqualsIgnoreCase": {
                               "aws:PrincipalType": "Anonymous"
-                            },
-                            "StringEquals": {
-                              "vpc-lattice-svcs:RequestMethod": "GET"
                             }
                           },
                           "Effect": "Allow",
                           "Principal": {
                             "AWS": [
-                              "*",
                               {
                                 "Fn::GetAtt": [
                                   "supportresourcesInvokeLambdaServiceRole2C95216B",
+                                  "Arn"
+                                ]
+                              },
+                              {
+                                "Fn::GetAtt": [
+                                  "supportresourcesconsumerRole717A0D72",
                                   "Arn"
                                 ]
                               }
@@ -1776,7 +2375,7 @@
                                     "Id"
                                   ]
                                 },
-                                "/hello"
+                                "/test1"
                               ]
                             ]
                           }
@@ -1784,12 +2383,19 @@
                         {
                           "Action": "vpc-lattice-svcs:Invoke",
                           "Condition": {
-                            "StringEquals": {
-                              "vpc-lattice-svcs:RequestMethod": "GET"
+                            "StringNotEqualsIgnoreCase": {
+                              "aws:PrincipalType": "Anonymous"
                             }
                           },
                           "Effect": "Allow",
-                          "Principal": "*",
+                          "Principal": {
+                            "AWS": {
+                              "Fn::GetAtt": [
+                                "arole12FDEB26",
+                                "Arn"
+                              ]
+                            }
+                          },
                           "Resource": {
                             "Fn::Join": [
                               "",
@@ -1813,7 +2419,7 @@
                                     "Id"
                                   ]
                                 },
-                                "/goodbye"
+                                "/test2"
                               ]
                             ]
                           }
@@ -1937,7 +2543,7 @@
                       "s3Bucket": {
                         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                       },
-                      "s3Key": "38f9b7ed7350b26030def31bedc013f22f598a71914db1b81643268b23c2102a.zip"
+                      "s3Key": "cb3fb24b24fb811fe6094748adf3e7571ee53cfadc9bf6753cbb223d266daf83.zip"
                     },
                     "handler": "index.handler",
                     "role": {
@@ -2003,7 +2609,7 @@
                           {
                             "targetGroupIdentifier": {
                               "Fn::GetAtt": [
-                                "lambdatargetsHello2848EB94",
+                                "test1B1785E1A",
                                 "Id"
                               ]
                             },
@@ -2020,10 +2626,9 @@
                     },
                     "match": {
                       "httpMatch": {
-                        "method": "GET",
                         "pathMatch": {
                           "match": {
-                            "exact": "/hello"
+                            "exact": "/test1"
                           },
                           "caseSensitive": true
                         }
@@ -2055,7 +2660,7 @@
                           {
                             "targetGroupIdentifier": {
                               "Fn::GetAtt": [
-                                "lambdatargetsGoodbye101C963F",
+                                "test2C0E05CD6",
                                 "Id"
                               ]
                             },
@@ -2072,10 +2677,9 @@
                     },
                     "match": {
                       "httpMatch": {
-                        "method": "GET",
                         "pathMatch": {
                           "match": {
-                            "exact": "/goodbye"
+                            "exact": "/test2"
                           },
                           "caseSensitive": true
                         }
@@ -2101,25 +2705,25 @@
               "version": "0.0.0"
             }
           },
-          "lambdaTargetHello": {
-            "id": "lambdaTargetHello",
-            "path": "ServiceNetwork/lambdaTargetHello",
+          "testtarget": {
+            "id": "testtarget",
+            "path": "ServiceNetwork/testtarget",
             "constructInfo": {
               "fqn": "@aws-cdk/aws-vpclattice-targets-alpha.Lambda",
               "version": "0.0.0"
             }
           },
-          "lambdatargetsHello": {
-            "id": "lambdatargetsHello",
-            "path": "ServiceNetwork/lambdatargetsHello",
+          "test1": {
+            "id": "test1",
+            "path": "ServiceNetwork/test1",
             "children": {
               "Resource": {
                 "id": "Resource",
-                "path": "ServiceNetwork/lambdatargetsHello/Resource",
+                "path": "ServiceNetwork/test1/Resource",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::VpcLattice::TargetGroup",
                   "aws:cdk:cloudformation:props": {
-                    "name": "hellotarget",
+                    "name": "test1",
                     "targets": [
                       {
                         "id": {
@@ -2144,30 +2748,30 @@
               "version": "0.0.0"
             }
           },
-          "lambdaTargetGoodbye": {
-            "id": "lambdaTargetGoodbye",
-            "path": "ServiceNetwork/lambdaTargetGoodbye",
+          "test2target": {
+            "id": "test2target",
+            "path": "ServiceNetwork/test2target",
             "constructInfo": {
               "fqn": "@aws-cdk/aws-vpclattice-targets-alpha.Lambda",
               "version": "0.0.0"
             }
           },
-          "lambdatargetsGoodbye": {
-            "id": "lambdatargetsGoodbye",
-            "path": "ServiceNetwork/lambdatargetsGoodbye",
+          "test2": {
+            "id": "test2",
+            "path": "ServiceNetwork/test2",
             "children": {
               "Resource": {
                 "id": "Resource",
-                "path": "ServiceNetwork/lambdatargetsGoodbye/Resource",
+                "path": "ServiceNetwork/test2/Resource",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::VpcLattice::TargetGroup",
                   "aws:cdk:cloudformation:props": {
-                    "name": "goodbyetarget",
+                    "name": "test2",
                     "targets": [
                       {
                         "id": {
                           "Fn::GetAtt": [
-                            "supportresourcesGoodbye40E30F7A",
+                            "supportresourcesplaceholder7EE4A2D9",
                             "Arn"
                           ]
                         }
@@ -2187,6 +2791,74 @@
               "version": "0.0.0"
             }
           },
+          "arole": {
+            "id": "arole",
+            "path": "ServiceNetwork/arole",
+            "children": {
+              "Importarole": {
+                "id": "Importarole",
+                "path": "ServiceNetwork/arole/Importarole",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "0.0.0"
+                }
+              },
+              "Resource": {
+                "id": "Resource",
+                "path": "ServiceNetwork/arole/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                  "aws:cdk:cloudformation:props": {
+                    "assumeRolePolicyDocument": {
+                      "Statement": [
+                        {
+                          "Action": "sts:AssumeRole",
+                          "Effect": "Allow",
+                          "Principal": {
+                            "AWS": "*"
+                          }
+                        }
+                      ],
+                      "Version": "2012-10-17"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                  "version": "0.0.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_iam.Role",
+              "version": "0.0.0"
+            }
+          },
+          "latticeLogs": {
+            "id": "latticeLogs",
+            "path": "ServiceNetwork/latticeLogs",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "ServiceNetwork/latticeLogs/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                  "aws:cdk:cloudformation:props": {
+                    "logGroupName": "latticeLogs",
+                    "retentionInDays": 30
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                  "version": "0.0.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_logs.LogGroup",
+              "version": "0.0.0"
+            }
+          },
           "LatticeServiceNetwork": {
             "id": "LatticeServiceNetwork",
             "path": "ServiceNetwork/LatticeServiceNetwork",
@@ -2202,6 +2874,31 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_vpclattice.CfnServiceNetwork",
+                  "version": "0.0.0"
+                }
+              },
+              "AccessLogSubscriptionc819d94c2866e163973a9279f84e368bd41bc38024": {
+                "id": "AccessLogSubscriptionc819d94c2866e163973a9279f84e368bd41bc38024",
+                "path": "ServiceNetwork/LatticeServiceNetwork/AccessLogSubscriptionc819d94c2866e163973a9279f84e368bd41bc38024",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::VpcLattice::AccessLogSubscription",
+                  "aws:cdk:cloudformation:props": {
+                    "destinationArn": {
+                      "Fn::GetAtt": [
+                        "latticeLogsC9267F3F",
+                        "Arn"
+                      ]
+                    },
+                    "resourceIdentifier": {
+                      "Fn::GetAtt": [
+                        "LatticeServiceNetwork096BE615",
+                        "Id"
+                      ]
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_vpclattice.CfnAccessLogSubscription",
                   "version": "0.0.0"
                 }
               },
@@ -2548,17 +3245,17 @@
                 "id": "DeployAssert",
                 "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert",
                 "children": {
-                  "LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6": {
-                    "id": "LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6",
-                    "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6",
+                  "LambdaInvoke5e90de7d2906077f42a9e319113c5f83": {
+                    "id": "LambdaInvoke5e90de7d2906077f42a9e319113c5f83",
+                    "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke5e90de7d2906077f42a9e319113c5f83",
                     "children": {
                       "SdkProvider": {
                         "id": "SdkProvider",
-                        "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6/SdkProvider",
+                        "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke5e90de7d2906077f42a9e319113c5f83/SdkProvider",
                         "children": {
                           "AssertionsProvider": {
                             "id": "AssertionsProvider",
-                            "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6/SdkProvider/AssertionsProvider",
+                            "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke5e90de7d2906077f42a9e319113c5f83/SdkProvider/AssertionsProvider",
                             "constructInfo": {
                               "fqn": "constructs.Construct",
                               "version": "10.2.69"
@@ -2572,11 +3269,11 @@
                       },
                       "Default": {
                         "id": "Default",
-                        "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6/Default",
+                        "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke5e90de7d2906077f42a9e319113c5f83/Default",
                         "children": {
                           "Default": {
                             "id": "Default",
-                            "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6/Default/Default",
+                            "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke5e90de7d2906077f42a9e319113c5f83/Default/Default",
                             "constructInfo": {
                               "fqn": "aws-cdk-lib.CfnResource",
                               "version": "0.0.0"
@@ -2590,7 +3287,7 @@
                       },
                       "Invoke": {
                         "id": "Invoke",
-                        "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6/Invoke",
+                        "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke5e90de7d2906077f42a9e319113c5f83/Invoke",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnResource",
                           "version": "0.0.0"
@@ -2598,7 +3295,7 @@
                       },
                       "AssertionResults": {
                         "id": "AssertionResults",
-                        "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6/AssertionResults",
+                        "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke5e90de7d2906077f42a9e319113c5f83/AssertionResults",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnOutput",
                           "version": "0.0.0"
@@ -2642,6 +3339,68 @@
                     "constructInfo": {
                       "fqn": "constructs.Construct",
                       "version": "10.2.69"
+                    }
+                  },
+                  "LambdaInvokef21a34922d8ad0c1a7e096975dc2fbae": {
+                    "id": "LambdaInvokef21a34922d8ad0c1a7e096975dc2fbae",
+                    "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvokef21a34922d8ad0c1a7e096975dc2fbae",
+                    "children": {
+                      "SdkProvider": {
+                        "id": "SdkProvider",
+                        "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvokef21a34922d8ad0c1a7e096975dc2fbae/SdkProvider",
+                        "children": {
+                          "AssertionsProvider": {
+                            "id": "AssertionsProvider",
+                            "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvokef21a34922d8ad0c1a7e096975dc2fbae/SdkProvider/AssertionsProvider",
+                            "constructInfo": {
+                              "fqn": "constructs.Construct",
+                              "version": "10.2.69"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "@aws-cdk/integ-tests-alpha.AssertionsProvider",
+                          "version": "0.0.0"
+                        }
+                      },
+                      "Default": {
+                        "id": "Default",
+                        "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvokef21a34922d8ad0c1a7e096975dc2fbae/Default",
+                        "children": {
+                          "Default": {
+                            "id": "Default",
+                            "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvokef21a34922d8ad0c1a7e096975dc2fbae/Default/Default",
+                            "constructInfo": {
+                              "fqn": "aws-cdk-lib.CfnResource",
+                              "version": "0.0.0"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CustomResource",
+                          "version": "0.0.0"
+                        }
+                      },
+                      "Invoke": {
+                        "id": "Invoke",
+                        "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvokef21a34922d8ad0c1a7e096975dc2fbae/Invoke",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnResource",
+                          "version": "0.0.0"
+                        }
+                      },
+                      "AssertionResults": {
+                        "id": "AssertionResults",
+                        "path": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvokef21a34922d8ad0c1a7e096975dc2fbae/AssertionResults",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnOutput",
+                          "version": "0.0.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/integ-tests-alpha.LambdaInvokeFunction",
+                      "version": "0.0.0"
                     }
                   },
                   "BootstrapVersion": {

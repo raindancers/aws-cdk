@@ -7,11 +7,12 @@ const stack = new LatticeTestStack(app, 'ServiceNetwork', {});
 
 const tests = new integ.IntegTest(app, 'vpcLatticeTestStackInteg', {
   testCases: [stack],
-  cdkCommandOptions: {
-    destroy: {
-      enabled: false,
-    },
-  },
+  // this will leave the test stack in place, this is helpful if you are debuging why its not working as expected.
+  // cdkCommandOptions: {
+  //   destroy: {
+  //     enabled: false,
+  //   },
+  // },
 });
 
 // the invoke lambda is permitted to access this path

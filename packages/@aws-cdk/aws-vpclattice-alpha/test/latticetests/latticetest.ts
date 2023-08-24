@@ -3,6 +3,7 @@ import * as core from 'aws-cdk-lib';
 import {
   aws_iam as iam,
   aws_lambda,
+  aws_logs as logs,
 }
   from 'aws-cdk-lib';
 
@@ -19,6 +20,7 @@ import {
   Listener,
   RuleAccessMode,
   ServiceNetworkAccessMode,
+  LoggingDestination,
 }
   from '../../lib/index';
 
@@ -76,6 +78,7 @@ export class LatticeTestStack extends core.Stack {
       },
       allowedPrincipals: [
         support.invoke.role as iam.Role,
+        support.ec2instance.role as iam.Role,
       ],
       accessMode: RuleAccessMode.AUTHENTICATED_ONLY,
     });
@@ -118,6 +121,13 @@ export class LatticeTestStack extends core.Stack {
     const serviceNetwork = new ServiceNetwork(this, 'LatticeServiceNetwork', {
       accessmode: ServiceNetworkAccessMode.UNAUTHENTICATED,
       services: [myLatticeService],
+      loggingDestinations: [
+        LoggingDestination.cloudwatch(new logs.LogGroup(this, 'latticeLogs', {
+          retention: logs.RetentionDays.ONE_MONTH,
+          logGroupName: 'latticeLogs',
+          removalPolicy: core.RemovalPolicy.DESTROY,
+        })),
+      ],
       vpcs: [
         support.vpc1,
         support.vpc2,

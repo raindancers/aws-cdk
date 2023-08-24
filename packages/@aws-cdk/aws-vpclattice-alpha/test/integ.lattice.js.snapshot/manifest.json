@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/942a75a492c3b589a857a117fbcc4989f57afc4d785eaa516871c06b2d050757.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9cf9a8c4981e22a378a97008e9572019baa90dfa10b9ed0548250733c3f1adef.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -139,6 +139,30 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "supportresourcesVPC1RestrictDefaultSecurityGroupCustomResourceAC31AEEA"
+          }
+        ],
+        "/ServiceNetwork/supportresources/VPC1/ssm/SecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesVPC1ssmSecurityGroup08612182"
+          }
+        ],
+        "/ServiceNetwork/supportresources/VPC1/ssm/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesVPC1ssmB884E8D3"
+          }
+        ],
+        "/ServiceNetwork/supportresources/VPC1/ssm_messages/SecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesVPC1ssmmessagesSecurityGroup662004AF"
+          }
+        ],
+        "/ServiceNetwork/supportresources/VPC1/ssm_messages/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesVPC1ssmmessages3997B96F"
           }
         ],
         "/ServiceNetwork/supportresources/VPC2/Resource": [
@@ -273,28 +297,52 @@
             "data": "supportresourcesInvokeLambdaC7072BDD"
           }
         ],
+        "/ServiceNetwork/supportresources/InvokeLambda/LogRetention/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesInvokeLambdaLogRetentionB4A95084"
+          }
+        ],
         "/ServiceNetwork/supportresources/helloRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "supportresourceshelloRole5ADF3862"
           }
         ],
-        "/ServiceNetwork/supportresources/helloRole/DefaultPolicy/Resource": [
+        "/ServiceNetwork/supportresources/consumerRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "supportresourceshelloRoleDefaultPolicyE0D968C9"
+            "data": "supportresourcesconsumerRole717A0D72"
           }
         ],
-        "/ServiceNetwork/supportresources/checkRole/Resource": [
+        "/ServiceNetwork/supportresources/consumerRole/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "supportresourcescheckRoleEC7B26D5"
+            "data": "supportresourcesconsumerRoleDefaultPolicy39A011A3"
           }
         ],
-        "/ServiceNetwork/supportresources/checkRole/DefaultPolicy/Resource": [
+        "/ServiceNetwork/supportresources/demoEC2instance/InstanceSecurityGroup/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "supportresourcescheckRoleDefaultPolicy5FCF6FFE"
+            "data": "supportresourcesdemoEC2instanceInstanceSecurityGroup04B01E8C"
+          }
+        ],
+        "/ServiceNetwork/supportresources/demoEC2instance/InstanceProfile": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesdemoEC2instanceInstanceProfile63F2FAAB"
+          }
+        ],
+        "/ServiceNetwork/supportresources/demoEC2instance/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesdemoEC2instanceDEBE0552"
+          }
+        ],
+        "/ServiceNetwork/supportresources/demoEC2instance/LaunchTemplate": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesdemoEC2instanceLaunchTemplateDBD43F05"
           }
         ],
         "/ServiceNetwork/supportresources/Helloworld/Resource": [
@@ -303,10 +351,22 @@
             "data": "supportresourcesHelloworld33AB6114"
           }
         ],
-        "/ServiceNetwork/supportresources/Goodbye/Resource": [
+        "/ServiceNetwork/supportresources/Helloworld/LogRetention/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "supportresourcesGoodbye40E30F7A"
+            "data": "supportresourcesHelloworldLogRetention4A54B0B2"
+          }
+        ],
+        "/ServiceNetwork/supportresources/placeholder/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesplaceholder7EE4A2D9"
+          }
+        ],
+        "/ServiceNetwork/supportresources/placeholder/LogRetention/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesplaceholderLogRetentionA6EA3887"
           }
         ],
         "/ServiceNetwork/Custom::VpcRestrictDefaultSGCustomResourceProvider/Role": [
@@ -319,6 +379,30 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E"
+          }
+        ],
+        "/ServiceNetwork/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+          }
+        ],
+        "/ServiceNetwork/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB"
+          }
+        ],
+        "/ServiceNetwork/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A"
+          }
+        ],
+        "/ServiceNetwork/SsmParameterValue:--aws--service--ami-amazon-linux-latest--al2023-ami-kernel-6.1-x86_64:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter"
           }
         ],
         "/ServiceNetwork/myLatticeService/Resource": [
@@ -381,22 +465,40 @@
             "data": "myListenerrule2Rule8ACEA5A3"
           }
         ],
-        "/ServiceNetwork/lambdatargetsHello/Resource": [
+        "/ServiceNetwork/test1/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "lambdatargetsHello2848EB94"
+            "data": "test1B1785E1A"
           }
         ],
-        "/ServiceNetwork/lambdatargetsGoodbye/Resource": [
+        "/ServiceNetwork/test2/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "lambdatargetsGoodbye101C963F"
+            "data": "test2C0E05CD6"
+          }
+        ],
+        "/ServiceNetwork/arole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "arole12FDEB26"
+          }
+        ],
+        "/ServiceNetwork/latticeLogs/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "latticeLogsC9267F3F"
           }
         ],
         "/ServiceNetwork/LatticeServiceNetwork/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "LatticeServiceNetwork096BE615"
+          }
+        ],
+        "/ServiceNetwork/LatticeServiceNetwork/AccessLogSubscriptionc819d94c2866e163973a9279f84e368bd41bc38024": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LatticeServiceNetworkAccessLogSubscriptionc819d94c2866e163973a9279f84e368bd41bc38024A3ADD4E5"
           }
         ],
         "/ServiceNetwork/LatticeServiceNetwork/AssociateVPCc828b31996782a89ad0d8eb64c5e667267406c5deb/ServiceNetworkSecurityGroupc8dd26e85e459a6f20ef5ed85aa08802d7c373d01b/Resource": [
@@ -458,6 +560,60 @@
             "type": "aws:cdk:logicalId",
             "data": "CheckBootstrapVersion"
           }
+        ],
+        "supportresourceshelloRoleDefaultPolicyE0D968C9": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourceshelloRoleDefaultPolicyE0D968C9",
+            "trace": [
+              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
+            ]
+          }
+        ],
+        "supportresourcescheckRoleEC7B26D5": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcescheckRoleEC7B26D5",
+            "trace": [
+              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
+            ]
+          }
+        ],
+        "supportresourcescheckRoleDefaultPolicy5FCF6FFE": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcescheckRoleDefaultPolicy5FCF6FFE",
+            "trace": [
+              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
+            ]
+          }
+        ],
+        "supportresourcesGoodbye40E30F7A": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "supportresourcesGoodbye40E30F7A",
+            "trace": [
+              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
+            ]
+          }
+        ],
+        "lambdatargetsHello2848EB94": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdatargetsHello2848EB94",
+            "trace": [
+              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
+            ]
+          }
+        ],
+        "lambdatargetsGoodbye101C963F": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdatargetsGoodbye101C963F",
+            "trace": [
+              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
+            ]
+          }
         ]
       },
       "displayName": "ServiceNetwork"
@@ -478,7 +634,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/3c09db0153bd7440a5d87b4599211602dd748f021359aeebc857da83fe65ebc1.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/61a9df63078a5e6570cf2bbedf5e921b6d09c6e380810131b1e294818267bed0.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -495,22 +651,22 @@
         "vpcLatticeTestStackIntegDefaultTestDeployAssertB4F53850.assets"
       ],
       "metadata": {
-        "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6/Default/Default": [
+        "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke5e90de7d2906077f42a9e319113c5f83/Default/Default": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6"
+            "data": "LambdaInvoke5e90de7d2906077f42a9e319113c5f83"
           }
         ],
-        "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6/Invoke": [
+        "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke5e90de7d2906077f42a9e319113c5f83/Invoke": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6InvokeDD0E9D79"
+            "data": "LambdaInvoke5e90de7d2906077f42a9e319113c5f83Invoke5EAFB1CB"
           }
         ],
-        "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke0cfa981be58beb39b48cc02c660c4ae6/AssertionResults": [
+        "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvoke5e90de7d2906077f42a9e319113c5f83/AssertionResults": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "AssertionResultsLambdaInvoke0cfa981be58beb39b48cc02c660c4ae6"
+            "data": "AssertionResultsLambdaInvoke5e90de7d2906077f42a9e319113c5f83"
           }
         ],
         "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/SingletonFunction1488541a7b23466481b69b4408076b81/Role": [
@@ -523,6 +679,24 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "SingletonFunction1488541a7b23466481b69b4408076b81HandlerCD40AE9F"
+          }
+        ],
+        "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvokef21a34922d8ad0c1a7e096975dc2fbae/Default/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaInvokef21a34922d8ad0c1a7e096975dc2fbae"
+          }
+        ],
+        "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvokef21a34922d8ad0c1a7e096975dc2fbae/Invoke": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaInvokef21a34922d8ad0c1a7e096975dc2fbaeInvoke0B640D12"
+          }
+        ],
+        "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/LambdaInvokef21a34922d8ad0c1a7e096975dc2fbae/AssertionResults": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AssertionResultsLambdaInvokef21a34922d8ad0c1a7e096975dc2fbae"
           }
         ],
         "/vpcLatticeTestStackInteg/DefaultTest/DeployAssert/BootstrapVersion": [

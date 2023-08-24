@@ -5,6 +5,11 @@
       "stacks": [
         "ServiceNetwork"
       ],
+      "cdkCommandOptions": {
+        "destroy": {
+          "enabled": false
+        }
+      },
       "assertionStack": "vpcLatticeTestStackInteg/DefaultTest/DeployAssert",
       "assertionStackName": "vpcLatticeTestStackIntegDefaultTestDeployAssertB4F53850"
     }

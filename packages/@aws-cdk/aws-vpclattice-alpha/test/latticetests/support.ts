@@ -15,6 +15,7 @@ export class SupportResources extends Construct {
   public lambdaTarget: core.aws_lambda.Function;
   public target2: core.aws_lambda.Function;
   public invoke: core.aws_lambda.Function;
+  public ec2instance: ec2.Instance;
 
   public vpc1: ec2.Vpc;
   public vpc2: ec2.Vpc;
@@ -64,12 +65,46 @@ export class SupportResources extends Construct {
         'ec2:CreateNetworkInterface',
         'ec2:DescribeNetworkInterfaces',
         'ec2:DeleteNetworkInterface',
+        'vpc-lattice-svcs:Invoke',
       ],
     }));
 
     // give the hello lambda a role and permissions
     const lambdaRole = new iam.Role(this, 'helloRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+    });
+
+    // create an ec2 instance
+
+    this.vpc1.addInterfaceEndpoint('ssm', {
+      service: ec2.InterfaceVpcEndpointAwsService.SSM,
+    });
+
+    this.vpc1.addInterfaceEndpoint('ssm_messages', {
+      service: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
+    });
+
+    const consumerRole = new iam.Role(this, 'consumerRole', {
+      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+      roleName: core.PhysicalName.GENERATE_IF_NEEDED,
+    });
+
+    consumerRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ['vpc-lattice-svcs:Invoke'],
+        resources: ['*'],
+      }),
+    );
+
+    this.ec2instance = new ec2.Instance(this, 'demoEC2instance', {
+      machineImage: ec2.MachineImage.latestAmazonLinux2023(),
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.MICRO),
+      vpc: this.vpc1,
+      allowAllOutbound: true,
+      ssmSessionPermissions: true,
+      requireImdsv2: true,
+      role: consumerRole,
     });
 
     // create the hello world lambda
@@ -84,7 +119,7 @@ export class SupportResources extends Construct {
 
     this.target2 = new aws_lambda.Function(this, 'placeholder', {
       runtime: aws_lambda.Runtime.PYTHON_3_10,
-      handler: 'helloworld.lambda_handler',
+      handler: 'goodbye.lambda_handler',
       code: aws_lambda.Code.fromAsset(path.join(__dirname, './lambda' )),
       timeout: core.Duration.seconds(15),
       role: lambdaRole,
