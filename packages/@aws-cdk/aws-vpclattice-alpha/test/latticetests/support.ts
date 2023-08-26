@@ -89,14 +89,6 @@ export class SupportResources extends Construct {
       roleName: core.PhysicalName.GENERATE_IF_NEEDED,
     });
 
-    consumerRole.addToPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        actions: ['vpc-lattice-svcs:Invoke'],
-        resources: ['*'],
-      }),
-    );
-
     this.ec2instance = new ec2.Instance(this, 'demoEC2instance', {
       machineImage: ec2.MachineImage.latestAmazonLinux2023(),
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.MICRO),

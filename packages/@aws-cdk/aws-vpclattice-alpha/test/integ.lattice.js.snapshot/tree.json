@@ -1398,6 +1398,16 @@
                                       ],
                                       "Effect": "Allow",
                                       "Resource": "*"
+                                    },
+                                    {
+                                      "Action": "vpc-lattice-svcs:Invoke",
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::GetAtt": [
+                                          "myLatticeServiceB48AE2A4",
+                                          "Arn"
+                                        ]
+                                      }
                                     }
                                   ],
                                   "Version": "2012-10-17"
@@ -1656,45 +1666,6 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_iam.CfnRole",
-                      "version": "0.0.0"
-                    }
-                  },
-                  "DefaultPolicy": {
-                    "id": "DefaultPolicy",
-                    "path": "ServiceNetwork/supportresources/consumerRole/DefaultPolicy",
-                    "children": {
-                      "Resource": {
-                        "id": "Resource",
-                        "path": "ServiceNetwork/supportresources/consumerRole/DefaultPolicy/Resource",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
-                          "aws:cdk:cloudformation:props": {
-                            "policyDocument": {
-                              "Statement": [
-                                {
-                                  "Action": "vpc-lattice-svcs:Invoke",
-                                  "Effect": "Allow",
-                                  "Resource": "*"
-                                }
-                              ],
-                              "Version": "2012-10-17"
-                            },
-                            "policyName": "supportresourcesconsumerRoleDefaultPolicy39A011A3",
-                            "roles": [
-                              {
-                                "Ref": "supportresourcesconsumerRole717A0D72"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
-                          "version": "0.0.0"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.Policy",
                       "version": "0.0.0"
                     }
                   }

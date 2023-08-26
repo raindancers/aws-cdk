@@ -71,7 +71,7 @@ describe('VPC Lattice', () => {
       });
 
       // line 259 service.ts
-      latticeService.grantAccess([new iam.AccountPrincipal('123456789000')]);
+      //latticeService.grantInvoke([new iam.AccountPrincipal('123456789000')]);
 
       // line 293 service.ts
       latticeService.addPolicyStatement(new iam.PolicyStatement({

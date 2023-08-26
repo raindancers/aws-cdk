@@ -871,6 +871,16 @@
        ],
        "Effect": "Allow",
        "Resource": "*"
+      },
+      {
+       "Action": "vpc-lattice-svcs:Invoke",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "myLatticeServiceB48AE2A4",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -1026,27 +1036,6 @@
     ]
    }
   },
-  "supportresourcesconsumerRoleDefaultPolicy39A011A3": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "vpc-lattice-svcs:Invoke",
-       "Effect": "Allow",
-       "Resource": "*"
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "supportresourcesconsumerRoleDefaultPolicy39A011A3",
-    "Roles": [
-     {
-      "Ref": "supportresourcesconsumerRole717A0D72"
-     }
-    ]
-   }
-  },
   "supportresourcesdemoEC2instanceInstanceSecurityGroup04B01E8C": {
    "Type": "AWS::EC2::SecurityGroup",
    "Properties": {
@@ -1128,7 +1117,6 @@
     }
    },
    "DependsOn": [
-    "supportresourcesconsumerRoleDefaultPolicy39A011A3",
     "supportresourcesconsumerRole717A0D72"
    ]
   },

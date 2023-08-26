@@ -41,6 +41,8 @@ export class LatticeTestStack extends core.Stack {
     const myLatticeService = new Service(this, 'myLatticeService', {
     });
 
+    myLatticeService.grantInvoke(this.invoke);
+
     this.serviceURL = myLatticeService.url;
 
     myLatticeService.node.addDependency(support.vpc1);

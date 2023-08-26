@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9cf9a8c4981e22a378a97008e9572019baa90dfa10b9ed0548250733c3f1adef.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/a025232acc93bfecd29ec8d7122e711549779e3d75f23f7e178fe9d2a9bd7f99.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -315,12 +315,6 @@
             "data": "supportresourcesconsumerRole717A0D72"
           }
         ],
-        "/ServiceNetwork/supportresources/consumerRole/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "supportresourcesconsumerRoleDefaultPolicy39A011A3"
-          }
-        ],
         "/ServiceNetwork/supportresources/demoEC2instance/InstanceSecurityGroup/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -561,55 +555,10 @@
             "data": "CheckBootstrapVersion"
           }
         ],
-        "supportresourceshelloRoleDefaultPolicyE0D968C9": [
+        "supportresourcesconsumerRoleDefaultPolicy39A011A3": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "supportresourceshelloRoleDefaultPolicyE0D968C9",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
-          }
-        ],
-        "supportresourcescheckRoleEC7B26D5": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "supportresourcescheckRoleEC7B26D5",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
-          }
-        ],
-        "supportresourcescheckRoleDefaultPolicy5FCF6FFE": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "supportresourcescheckRoleDefaultPolicy5FCF6FFE",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
-          }
-        ],
-        "supportresourcesGoodbye40E30F7A": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "supportresourcesGoodbye40E30F7A",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
-          }
-        ],
-        "lambdatargetsHello2848EB94": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "lambdatargetsHello2848EB94",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
-          }
-        ],
-        "lambdatargetsGoodbye101C963F": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "lambdatargetsGoodbye101C963F",
+            "data": "supportresourcesconsumerRoleDefaultPolicy39A011A3",
             "trace": [
               "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
             ]
@@ -634,7 +583,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/61a9df63078a5e6570cf2bbedf5e921b6d09c6e380810131b1e294818267bed0.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/0c1d5247c891ebe6a282c7947c7e5c17932faef1ae7522410c20a04dce7a7265.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [

@@ -289,26 +289,23 @@ export class Service extends core.Resource implements IService {
   }
 
   /**
-   * .grantAccess on a lattice service, will permit the principals to
-   * access all of the service. Consider using more granual permissions
-   * at the rule level.
+   * .grantInvoke, permits the grantee permission to invoke the service.
+   * Note:The grantee may also be permitted permission in a service rule.
    *
-   * @param principals
+   * @param grantee
    */
-  public grantAccess(principals: iam.IPrincipal[]): void {
+  public grantInvoke(grantee: iam.IGrantable) {
 
-    let policyStatement: iam.PolicyStatement = new iam.PolicyStatement();
+    const actions: string[] = ['vpc-lattice-svcs:Invoke'];
 
-    principals.forEach((principal) => {
-      policyStatement.addPrincipals(principal);
+    return iam.Grant.addToPrincipal({
+      grantee,
+      actions,
+      resourceArns: [this.serviceArn],
+      scope: this,
     });
-    policyStatement.addActions('vpc-lattice-svcs:Invoke');
-    policyStatement.addResources('*');
-    policyStatement.effect = iam.Effect.ALLOW;
-
-    this.authPolicy.addStatements(policyStatement);
-
   }
+
   /**
   * apply an authpolicy
   */
